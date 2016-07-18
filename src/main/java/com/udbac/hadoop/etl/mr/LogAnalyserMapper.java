@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * Created by root on 2016/7/13.
+ * Log的Mapper
  */
 public class LogAnalyserMapper extends Mapper<LongWritable, Text, NullWritable, Text> {
     private final Logger logger = Logger.getLogger(LogAnalyserMapper.class);
