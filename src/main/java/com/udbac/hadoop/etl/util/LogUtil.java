@@ -22,12 +22,11 @@ public class LogUtil {
             if (splits.length == 15) {
                 logmap.put(SDCLogConstants.LOG_COLUMN_NAME_Date, splits[0]);
                 logmap.put(SDCLogConstants.LOG_COLUMN_NAME_Time, splits[1]);
-                logmap.put(SDCLogConstants.LOG_COLUMN_NAME_Cip, splits[2]);
                 int index = logText.indexOf(" ");
-                if (index > -1) {
-                    String uriBody = splits[7];
-                    handleUriBody(uriBody, logmap);
-                }
+//                if (index > -1) {
+//                    String uriBody = splits[7];
+//                    handleUriBody(uriBody, logmap);
+//                }
             }
         }
         return logmap;
