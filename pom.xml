@@ -61,11 +61,6 @@
             <artifactId>hadoop-mapreduce-client-common</artifactId>
             <version>${org.apache.hadoop.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-yarn</artifactId>
-            <version>${org.apache.hadoop.version}</version>
-        </dependency>
 
         <!-- log jar-->
         <dependency>

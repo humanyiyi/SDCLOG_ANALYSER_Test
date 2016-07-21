@@ -47,16 +47,16 @@ public class LogAnalyserMapper extends Mapper<LongWritable, Text, NullWritable, 
         StringBuffer sb = new StringBuffer();
         for (Map.Entry<String,String> entry:logmap.entrySet()){
             if (StringUtils.isNotBlank(entry.getKey()) && StringUtils.isNotBlank(entry.getValue())) {
-                sb.append(entry.getValue()).append("\t");
+                sb.append(entry.getValue()).append("|");
             }
         }
-        sb.append("\n");
-        context.write(NullWritable.get(),new Text(sb.toString()));
+
+        context.write(NullWritable.get(),new Text(sb.toString().substring(0,sb.length()-1)));
     }
 
     public static void main(String[] args) {
         Configuration conf =new Configuration();
-        conf.set("fs.defaultFS", "hdfs://node11:8020");
+        conf.set("fs.defaultFS", "hdfs://192.168.4.21:8020");
 //		conf.set("mapred.jar", "C:\\Users\\Administrator\\Desktop\\wc.jar");
         try {
             Job job = Job.getInstance(conf,"wc");
@@ -67,9 +67,9 @@ public class LogAnalyserMapper extends Mapper<LongWritable, Text, NullWritable, 
             job.setMapOutputKeyClass(NullWritable.class);
             job.setMapOutputValueClass(Text.class);
 
-            FileInputFormat.addInputPath(job, new Path("/test/input/test.log"));
+            FileInputFormat.addInputPath(job, new Path("/user/admin/test/input/test.log"));
             //output目录不允许存在。
-            Path output=new Path("/test/output");
+            Path output=new Path("/user/admin/test/output");
             if(fs.exists(output)){
                 fs.delete(output, true);
             }
