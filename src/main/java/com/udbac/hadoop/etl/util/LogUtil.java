@@ -40,7 +40,7 @@ public class LogUtil {
                 if (StringUtils.isNotBlank(param)) {
                     int index = param.indexOf("=");
                     if (index < 0) {
-                        logger.warn("无法解析参数：" + param + "， uri为:" + uriBody);
+//                        logger.info("无法解析参数：" + param + "， uri为:" + uriBody);
                         continue;
                     }
                     String key = null, value = null;
@@ -48,10 +48,10 @@ public class LogUtil {
                         key = param.substring(0, index);
                         value = URLDecoder.decode(param.substring(index + 1), "utf-8");
                     } catch (UnsupportedEncodingException e) {
-                        logger.warn("解码操作出现异常", e);
+//                        logger.warn("解码操作出现异常", e);
                         e.printStackTrace();
                     }
-                    if (StringUtils.isNotBlank(key) && StringUtils.isNotBlank(value)) {
+                    if (StringUtils.isNotBlank(key) && StringUtils.isNotBlank(value)&& key.equals("wt.event")) {
                                 logmap.put(key, value);
                     }
                 }

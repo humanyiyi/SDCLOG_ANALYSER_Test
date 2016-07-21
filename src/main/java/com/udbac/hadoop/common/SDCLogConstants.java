@@ -60,6 +60,10 @@ public class SDCLogConstants {
      * 日期时间
      */
     public static final String LOG_QUERE_NAME_DCSDAT= "dcsdat";
+    /**
+     * 时间类型
+     */
+    public static final String LOG_QUERE_NAME_EVENT= "wt.event";
 
 
 }
