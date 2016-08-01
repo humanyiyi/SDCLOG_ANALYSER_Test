@@ -23,16 +23,18 @@ public class LogUtil {
         if (StringUtils.isNotBlank(logText)) {
             String splits[] = logText.split(SDCLogConstants.LOG_SEPARTIOR);
             if (splits.length == 15) {
-                sdcLog.setDate(splits[0].replace("-", ""));
+                sdcLog.setDate("2016-07-11");
                 sdcLog.setTime(splits[1].replace(":", ""));
-                //处理IP
-                sdcLog.setcIp(splits[2]);
-                handleIP(sdcLog);
-                //处理浏览器信息
-                sdcLog.setCsUserAgent(splits[11]);
-                handleUserAgent(sdcLog);
-//                sdcLog.setcIp("IP地址");
-//                sdcLog.setCsUserAgent("浏览器");
+//                //处理IP
+//                sdcLog.setcIp(splits[2]);
+//                handleIP(sdcLog);
+//                //处理浏览器信息
+//                sdcLog.setCsUserAgent(splits[11]);
+//                handleUserAgent(sdcLog);
+                sdcLog.setcIp("IP地址");
+                sdcLog.setsIp("服务器地址");
+                sdcLog.setCsUriStem("REST");
+                sdcLog.setCsUserAgent("浏览器");
                 int index = logText.indexOf(" ");
                 if (index > -1) {
                     String uriBody = splits[7];
@@ -44,14 +46,14 @@ public class LogUtil {
     }
 
     private static void handleUriBody(String uriBody, SDCLog sdcLog) {
-        Map<String,String> urimap = new HashMap<String,String>();
-    	if (StringUtils.isNotBlank(uriBody)) {
+        HashMap<String, String> urimap = new HashMap<String, String>();
+        if (StringUtils.isNotBlank(uriBody)) {
             String splits[] = uriBody.split("&");
             for (String param : splits) {
                 if (StringUtils.isNotBlank(param)) {
                     int index = param.indexOf("=");
                     if (index < 0) {
-//                       logger.info("无法解析参数：" + param + "， uri为:" + uriBody);
+//                        logger.info("无法解析参数：" + param + "， uri为:" + uriBody);
                         continue;
                     }
                     String key = null, value = null;
@@ -69,7 +71,7 @@ public class LogUtil {
                                 break;
                         }
                     } catch (UnsupportedEncodingException e) {
-//                        logger.warn("解码操作出现异常", e);
+//                       logger.warn("解码操作出现异常", e);
                         e.printStackTrace();
 
                     }
@@ -98,7 +100,6 @@ public class LogUtil {
             }
         }
     }
-
 
     private static void handleUserAgent(SDCLog sdcLog) {
         if (StringUtils.isNotBlank(sdcLog.getCsUserAgent())) {

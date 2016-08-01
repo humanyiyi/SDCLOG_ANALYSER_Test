@@ -1,8 +1,16 @@
 package com.udbac.hadoop.entity;
 
 import com.udbac.hadoop.common.SDCLogConstants;
+import com.udbac.hadoop.util.SplitValueBuilder;
+import jodd.util.StringUtil;
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableUtils;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -17,14 +25,13 @@ public class SDCLog {
     private String csUriStem;
     private String csUserAgent;
 
-    private Map<String, String> uriQuery;
+    private HashMap<String, String> uriQuery;
 
-
-    public Map<String, String> getUriQuery() {
+    public HashMap<String, String> getUriQuery() {
         return uriQuery;
     }
 
-    public void setUriQuery(Map<String, String> uriQuery) {
+    public void setUriQuery(HashMap<String, String> uriQuery) {
         this.uriQuery = uriQuery;
     }
 
@@ -76,27 +83,25 @@ public class SDCLog {
         this.csUserAgent = csUserAgent;
     }
 
-//	@Override
-//	public String toString() {
-//		return "SDCLog [date=" + date + ", time=" + time + "]";
-//	}
-
-
     @Override
     public String toString() {
-        String column = date + "|" + time + "|" + cIp + "|"+csUserAgent+"|";
-
-        String query = getUriQuery().get(SDCLogConstants.LOG_QUERY_NAME_UTMSOURCE)
-                + "|" + getUriQuery().get(SDCLogConstants.LOG_QUERY_NAME_WTUTYPE)
-                +"|"+getUriQuery().get(SDCLogConstants.LOG_QUERY_NAME_WTAVV)
-                +"|"+getUriQuery().get(SDCLogConstants.LOG_QUERY_NAME_WTPOS)+"|";
-
-        String event = getUriQuery().get(SDCLogConstants.LOG_EVENT_NAME_WTLOGIN)
-                +"|"+getUriQuery().get(SDCLogConstants.LOG_EVENT_NAME_WTMENU)
-                +"|"+getUriQuery().get(SDCLogConstants.LOG_EVENT_NAME_WTCART)
-                +"|"+getUriQuery().get(SDCLogConstants.LOG_EVENT_NAME_WTUSER)
-                +"|"+getUriQuery().get(SDCLogConstants.LOG_EVENT_NAME_WTSUC)
-                +"|"+getUriQuery().get(SDCLogConstants.LOG_EVENT_NAME_WTPAY);
-        return column+query+event;
+        String column = new SplitValueBuilder()
+                .add(uriQuery.get(SDCLogConstants.LOG_QUERY_NAME_DEVICEID))
+                .add(time)
+                .add(date)
+                .add(cIp)
+                .add(csUserAgent)
+                .add(uriQuery.get(SDCLogConstants.LOG_QUERY_NAME_UTMSOURCE))
+                .add(uriQuery.get(SDCLogConstants.LOG_QUERY_NAME_WTUTYPE))
+                .add(uriQuery.get(SDCLogConstants.LOG_QUERY_NAME_WTAVV))
+                .add(uriQuery.get(SDCLogConstants.LOG_QUERY_NAME_WTPOS)).build();
+        String event = new SplitValueBuilder()
+                .add(uriQuery.get(SDCLogConstants.LOG_EVENT_NAME_WTLOGIN))
+                .add(uriQuery.get(SDCLogConstants.LOG_EVENT_NAME_WTMENU))
+                .add(uriQuery.get(SDCLogConstants.LOG_EVENT_NAME_WTCART))
+                .add(uriQuery.get(SDCLogConstants.LOG_EVENT_NAME_WTUSER))
+                .add(uriQuery.get(SDCLogConstants.LOG_EVENT_NAME_WTSUC))
+                .add(uriQuery.get(SDCLogConstants.LOG_EVENT_NAME_WTPAY)).build();
+        return column + "|" + event.replace("null", "").replace("|", "");
     }
 }

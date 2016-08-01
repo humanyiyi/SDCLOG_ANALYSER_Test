@@ -185,7 +185,9 @@ public class TimeUtil {
      * String类型的时间 转化为long类型的毫秒数 formatType:HH:mm:ss
      */
     public static long timeToLong(String strTime, String formatType) {
-        if(strTime.length()!=6){return 0;}
+        if (strTime.length() != 6) {
+            return 3;
+        }
         Date date = null; // String类型转成date类型
         try {
             date = stringToDate(strTime, formatType);

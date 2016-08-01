@@ -13,7 +13,7 @@ public class SDCLogConstants {
      */
     public static final int DAY_OF_MILLISECONDS = 86400000;
     /**
-     * 一天的毫秒数
+     * 半小时的毫秒数
      */
     public static final int HALFHOUR_OF_MILLISECONDS = 1800000;
     /**
@@ -144,45 +144,5 @@ public class SDCLogConstants {
      * 浏览器版本
      */
     public static final String LOG_COLUMN_NAME_BROWSER_VERSION = "browser_v";
-
-
-
-    /**
-     * 事件枚举类。指定事件的名称
-     */
-//        public static enum EventEnum {
-//            WTLOGIN(1, "login view event", "wt.login"), // 登陆标识
-//            WTMENU(2, "menu view event", "wt.menu"), // 浏览菜单标识
-//            WTUSER(3, "user view event", "wt.user"), // 用户信息页标识
-//            WTCART(4, "cart event", "wt.cart"), // 购物车确认页标识
-//            WTSUC(5, "charge success event", "wt.suc"), // 订单成功标识
-//            WTPAY(6, "pay event", "wt.pay") // 订单支付标识
-//            ;
-//
-//            public final int id; // id 唯一标识
-//            public final String name; // 名称
-//            public final String alias; // 别名，用于数据收集的简写
-//
-//            private EventEnum(int id, String name, String alias) {
-//                this.id = id;
-//                this.name = name;
-//                this.alias = alias;
-//            }
-//
-//            /**
-//             * 获取匹配别名的event枚举对象，如果最终还是没有匹配的值，那么直接返回null。
-//             *
-//             * @param alias
-//             * @return
-//             */
-//            public static EventEnum valueOfAlias(String alias) {
-//                for (EventEnum event : values()) {
-//                    if (event.alias.equals(alias)) {
-//                        return event;
-//                    }
-//                }
-//                return null;
-//            }
-//        }
 
     }
