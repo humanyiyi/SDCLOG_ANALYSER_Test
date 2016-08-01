@@ -25,12 +25,13 @@ public class TimeUtilTest {
 
     @Test
     public void longToTime() throws Exception {
-        System.out.println(new TimeUtil().longToTime(1232132124));
+        System.out.println(new TimeUtil().longToTime(79201000));
     }
 
     @Test
     public void timeToLong() throws Exception {
         System.out.println(new TimeUtil().timeToLong("235959"));
+        System.out.println(Integer.MAX_VALUE);
     }
 
 }
