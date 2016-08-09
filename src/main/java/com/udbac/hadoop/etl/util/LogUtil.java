@@ -23,18 +23,18 @@ public class LogUtil {
         if (StringUtils.isNotBlank(logText)) {
             String splits[] = logText.split(SDCLogConstants.LOG_SEPARTIOR);
             if (splits.length == 15) {
-                sdcLog.setDate("2016-07-11");
+                sdcLog.setDate(splits[0]);
                 sdcLog.setTime(splits[1].replace(":", ""));
-//                //处理IP
-//                sdcLog.setcIp(splits[2]);
-//                handleIP(sdcLog);
-//                //处理浏览器信息
-//                sdcLog.setCsUserAgent(splits[11]);
-//                handleUserAgent(sdcLog);
-                sdcLog.setcIp("IP地址");
-                sdcLog.setsIp("服务器地址");
-                sdcLog.setCsUriStem("REST");
-                sdcLog.setCsUserAgent("浏览器");
+                //处理IP
+                sdcLog.setcIp(splits[2]);
+                handleIP(sdcLog);
+                //处理浏览器信息
+                sdcLog.setCsUserAgent(splits[11]);
+                handleUserAgent(sdcLog);
+//                sdcLog.setcIp("IP地址");
+//                sdcLog.setsIp("服务器地址");
+//                sdcLog.setCsUriStem("REST");
+//                sdcLog.setCsUserAgent("浏览器");
                 int index = logText.indexOf(" ");
                 if (index > -1) {
                     String uriBody = splits[7];

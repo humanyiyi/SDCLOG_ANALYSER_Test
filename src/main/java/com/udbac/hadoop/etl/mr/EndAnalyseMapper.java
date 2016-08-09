@@ -94,32 +94,32 @@ public class EndAnalyseMapper extends Mapper<LongWritable, Text, NullWritable, T
         return analysedLog;
     }
 
-    public static void main(String[] args) {
-        Configuration conf = new Configuration();
-        conf.set("fs.defaultFS", "hdfs://hadoop-01:8020");
-//        conf.set("mapred.jar", "C:\\Users\\Administrator\\Desktop\\wc.jar");
-        try {
-            Job job = Job.getInstance(conf, "LogAnalyser");
-            FileSystem fs = FileSystem.get(conf);
-
-            job.setJarByClass(EndAnalyseMapper.class);
-
-            ChainMapper.addMapper(job, EndAnalyseMapper.class, LongWritable.class, Text.class, NullWritable.class, Text.class, conf);
-
-            FileInputFormat.addInputPath(job, new Path("/user/mr/2016-07-25/output"));
-            //output目录不允许存在。
-            Path output = new Path("/user/mr/2016-07-25/output/out");
-            if (fs.exists(output)) {
-                fs.delete(output, true);
-            }
-            FileOutputFormat.setOutputPath(job, output);
-
-            boolean f = job.waitForCompletion(true);
-            if (f) {
-                System.out.println("job 执行成功");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    public static void main(String[] args) {
+//        Configuration conf = new Configuration();
+//        conf.set("fs.defaultFS", "hdfs://hadoop-01:8020");
+////        conf.set("mapred.jar", "C:\\Users\\Administrator\\Desktop\\wc.jar");
+//        try {
+//            Job job = Job.getInstance(conf, "LogAnalyser");
+//            FileSystem fs = FileSystem.get(conf);
+//
+//            job.setJarByClass(EndAnalyseMapper.class);
+//
+//            ChainMapper.addMapper(job, EndAnalyseMapper.class, LongWritable.class, Text.class, NullWritauteble.class, Text.class, conf);
+//
+//            FileInputFormat.addInputPath(job, new Path("/user/mr/2016-07-25/output"));
+//            //output目录不允许存在。
+//            Path output = new Path("/user/mr/2016-07-25/output/out");
+//            if (fs.exists(output)) {
+//                fs.delete(output, true);
+//            }
+//            FileOutputFormat.setOutputPath(job, output);
+//
+//            boolean f = job.waitForCompletion(true);
+//            if (f) {
+//                System.out.println("job 执行成功");
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 }

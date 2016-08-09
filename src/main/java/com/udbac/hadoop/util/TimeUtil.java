@@ -47,7 +47,7 @@ public class TimeUtil {
     public static boolean isValidateRunningDate(String input) {
         Matcher matcher = null;
         boolean result = false;
-        String regex = "[0-9]{4}-[0-9]{2}-[0-9]{2}";
+        String regex = "[0-9]{4}[0-9]{2}[0-9]{2}";
         if (input != null && !input.isEmpty()) {
             Pattern pattern = Pattern.compile(regex);
             matcher = pattern.matcher(input);
