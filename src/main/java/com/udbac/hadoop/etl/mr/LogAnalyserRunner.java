@@ -1,6 +1,9 @@
 package com.udbac.hadoop.etl.mr;
 
-import com.udbac.hadoop.common.*;
+import com.udbac.hadoop.common.CombinationKey;
+import com.udbac.hadoop.common.DefinedComparator;
+import com.udbac.hadoop.common.DefinedGroupSort;
+import com.udbac.hadoop.common.SDCLogConstants;
 import com.udbac.hadoop.util.TimeUtil;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -8,20 +11,12 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.PathFilter;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.compress.BZip2Codec;
-import org.apache.hadoop.io.compress.GzipCodec;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.lib.chain.ChainMapper;
-import org.apache.hadoop.mapreduce.lib.input.CombineTextInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.jobcontrol.ControlledJob;
 import org.apache.hadoop.mapreduce.lib.jobcontrol.JobControl;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.LazyOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
@@ -69,10 +64,7 @@ public class LogAnalyserRunner implements Tool {
         String inputPath = inputArgs[0];
         String outputPath1 = inputArgs[0] + "/output";
         String outputPath2 = inputArgs[1];
-//        String inputPath ="D:\\test\\20160731" ;
-//        String outputPath1 = inputPath+"/output";
-//        String outputPath2 = "D:\\test\\endout";
-        conf.set(SDCLogConstants.RUNNING_DATE_PARAMES, TimeUtil.getYesterday());
+//        conf.set(SDCLogConstants.RUNNING_DATE_PARAMES, TimeUtil.getYesterday());
 
         Job job1 = Job.getInstance(conf, "LogAnalyserMap");
 
@@ -89,7 +81,7 @@ public class LogAnalyserRunner implements Tool {
         //加入控制容器
         ControlledJob ctrljob1 = new ControlledJob(conf);
         ctrljob1.setJob(job1);
-//        TextInputFormat.setInputPathFilter(job1, TextPathFilter.class);
+        TextInputFormat.setInputPathFilter(job1, TextPathFilter.class);
         TextInputFormat.addInputPath(job1, new Path(inputPath));
         TextOutputFormat.setOutputPath(job1, new Path(outputPath1));
         LazyOutputFormat.setOutputFormatClass(job1, TextOutputFormat.class);

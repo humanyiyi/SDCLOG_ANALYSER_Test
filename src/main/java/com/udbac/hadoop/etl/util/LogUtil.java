@@ -8,8 +8,11 @@ import org.apache.log4j.Logger;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by root on 2016/7/13.
@@ -23,18 +26,19 @@ public class LogUtil {
         if (StringUtils.isNotBlank(logText)) {
             String splits[] = logText.split(SDCLogConstants.LOG_SEPARTIOR);
             if (splits.length == 15) {
-                sdcLog.setDate(splits[0]);
-                sdcLog.setTime(splits[1].replace(":", ""));
+                String realtime = handleTime(splits[0] + " " + splits[1]);
+                sdcLog.setDate(realtime.split(" ")[0]);
+                sdcLog.setTime(realtime.split(" ")[1]);
                 //处理IP
-                sdcLog.setcIp(splits[2]);
-                handleIP(sdcLog);
-                //处理浏览器信息
-                sdcLog.setCsUserAgent(splits[11]);
-                handleUserAgent(sdcLog);
-//                sdcLog.setcIp("IP地址");
+//                sdcLog.setcIp(splits[2]);
+//                handleIP(sdcLog);
+//                //处理浏览器信息
+//                sdcLog.setCsUserAgent(splits[11]);
+//                handleUserAgent(sdcLog);
+                sdcLog.setcIp("IP地址");
 //                sdcLog.setsIp("服务器地址");
 //                sdcLog.setCsUriStem("REST");
-//                sdcLog.setCsUserAgent("浏览器");
+                sdcLog.setCsUserAgent("浏览器");
                 int index = logText.indexOf(" ");
                 if (index > -1) {
                     String uriBody = splits[7];
@@ -43,6 +47,23 @@ public class LogUtil {
             }
         }
         return sdcLog;
+    }
+
+    private static String handleTime(String dateTime) {
+        String realtime = null;
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            Date date = dateFormat.parse(dateTime);
+            calendar.setTime(date);
+            calendar.add(Calendar.HOUR_OF_DAY, 7);
+            calendar.add(Calendar.MINUTE, 59);
+            calendar.add(Calendar.SECOND, 59);
+            realtime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(calendar.getTime());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return realtime;
     }
 
     private static void handleUriBody(String uriBody, SDCLog sdcLog) {
