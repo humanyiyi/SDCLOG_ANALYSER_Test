@@ -19,26 +19,26 @@ import java.util.HashMap;
  */
 public class LogUtil {
     private static final Logger logger = Logger.getLogger(LogUtil.class);
-     private static IPSeekerExt ipSeekerExt = new IPSeekerExt();
+    private static IPSeekerExt ipSeekerExt = new IPSeekerExt();
 
     public static SDCLog handleLog(String logText) {
         SDCLog sdcLog = new SDCLog();
         if (StringUtils.isNotBlank(logText)) {
             String splits[] = logText.split(SDCLogConstants.LOG_SEPARTIOR);
             if (splits.length == 15) {
-                String realtime = handleTime(splits[0] + " " + splits[1]);
-                sdcLog.setDate(realtime.split(" ")[0]);
-                sdcLog.setTime(realtime.split(" ")[1]);
-                //处理IP
+                String[] datetime = handleTime(splits[0] + " " + splits[1]).split(" ");
+                sdcLog.setDate(datetime[0]);
+                sdcLog.setTime(datetime[1].replace(":", ""));
+//                //处理IP
 //                sdcLog.setcIp(splits[2]);
 //                handleIP(sdcLog);
 //                //处理浏览器信息
 //                sdcLog.setCsUserAgent(splits[11]);
 //                handleUserAgent(sdcLog);
                 sdcLog.setcIp("IP地址");
+                sdcLog.setCsUserAgent("浏览器");
 //                sdcLog.setsIp("服务器地址");
 //                sdcLog.setCsUriStem("REST");
-                sdcLog.setCsUserAgent("浏览器");
                 int index = logText.indexOf(" ");
                 if (index > -1) {
                     String uriBody = splits[7];
@@ -82,12 +82,12 @@ public class LogUtil {
                         key = param.substring(0, index);
                         value = URLDecoder.decode(param.substring(index + 1), "utf-8");
                         switch (key) {
-                            case    SDCLogConstants.LOG_EVENT_NAME_WTLOGIN :
-                            case    SDCLogConstants.LOG_EVENT_NAME_WTMENU:
-                            case    SDCLogConstants.LOG_EVENT_NAME_WTCART:
-                            case    SDCLogConstants.LOG_EVENT_NAME_WTUSER:
-                            case    SDCLogConstants.LOG_EVENT_NAME_WTSUC:
-                            case    SDCLogConstants.LOG_EVENT_NAME_WTPAY:
+                            case SDCLogConstants.LOG_EVENT_NAME_WTLOGIN:
+                            case SDCLogConstants.LOG_EVENT_NAME_WTMENU:
+                            case SDCLogConstants.LOG_EVENT_NAME_WTCART:
+                            case SDCLogConstants.LOG_EVENT_NAME_WTUSER:
+                            case SDCLogConstants.LOG_EVENT_NAME_WTSUC:
+                            case SDCLogConstants.LOG_EVENT_NAME_WTPAY:
                                 value = key.substring(3)+":"+value;
                                 break;
                         }

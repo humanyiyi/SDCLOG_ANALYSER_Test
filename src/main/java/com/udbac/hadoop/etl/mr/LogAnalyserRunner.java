@@ -13,10 +13,12 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.PathFilter;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.compress.BZip2Codec;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.jobcontrol.ControlledJob;
 import org.apache.hadoop.mapreduce.lib.jobcontrol.JobControl;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.LazyOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
@@ -64,7 +66,7 @@ public class LogAnalyserRunner implements Tool {
         String inputPath = inputArgs[0];
         String outputPath1 = inputArgs[0] + "/output";
         String outputPath2 = inputArgs[1];
-//        conf.set(SDCLogConstants.RUNNING_DATE_PARAMES, TimeUtil.getYesterday());
+        conf.set(SDCLogConstants.RUNNING_DATE_PARAMES, TimeUtil.getYesterday());
 
         Job job1 = Job.getInstance(conf, "LogAnalyserMap");
 
@@ -82,10 +84,11 @@ public class LogAnalyserRunner implements Tool {
         ControlledJob ctrljob1 = new ControlledJob(conf);
         ctrljob1.setJob(job1);
         TextInputFormat.setInputPathFilter(job1, TextPathFilter.class);
+        FileOutputFormat.setOutputCompressorClass(job1, BZip2Codec.class);
         TextInputFormat.addInputPath(job1, new Path(inputPath));
         TextOutputFormat.setOutputPath(job1, new Path(outputPath1));
         LazyOutputFormat.setOutputFormatClass(job1, TextOutputFormat.class);
-//        FileOutputFormat.setOutputCompressorClass(job1, BZip2Codec.class);
+
 
         Job job2 = Job.getInstance(conf, "EndAnalyseeMap");
         job2.setJarByClass(LogAnalyserRunner.class);
@@ -108,7 +111,6 @@ public class LogAnalyserRunner implements Tool {
         //添加到总的JobControl里，进行控制
         jobCtrl.addJob(ctrljob1);
         jobCtrl.addJob(ctrljob2);
-
         //在线程启动，记住一定要有这个
         Thread t = new Thread(jobCtrl);
         t.start();
@@ -120,8 +122,9 @@ public class LogAnalyserRunner implements Tool {
                 break;
             }
         }
-        FileSystem fs = FileSystem.get(getConf());
-        fs.delete(new Path(outputPath1), true);
+
+//        FileSystem fs = FileSystem.get(getConf());
+//        fs.delete(new Path(outputPath1), true);
         return job1.waitForCompletion(true) && job2.waitForCompletion(true) ? 0 : -1;
     }
 

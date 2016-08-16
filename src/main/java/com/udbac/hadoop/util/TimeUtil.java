@@ -14,7 +14,11 @@ import java.util.regex.Pattern;
  * 时间控制工具类
  */
 public class TimeUtil {
-    public static final String DATE_FORMAT = "yyyyMMdd";
+    public static final String DATE_FORMAT = "yyyy-MM-dd";
+    /**
+     * 处理session重建
+     */
+    public static final String TIME_FORMAT = "HHmmss";
 
     /**
      * 获取昨日的日期格式字符串数据
@@ -47,7 +51,7 @@ public class TimeUtil {
     public static boolean isValidateRunningDate(String input) {
         Matcher matcher = null;
         boolean result = false;
-        String regex = "[0-9]{4}[0-9]{2}[0-9]{2}";
+        String regex = "[0-9]{4}-[0-9]{2}-[0-9]{2}";
         if (input != null && !input.isEmpty()) {
             Pattern pattern = Pattern.compile(regex);
             matcher = pattern.matcher(input);
@@ -66,23 +70,6 @@ public class TimeUtil {
      */
     public static long parseStringDate2Long(String input) {
         return parseString2Long(input, DATE_FORMAT);
-    }
-
-    /**
-     * 将指定格式的时间字符串转换为时间戳
-     *
-     * @param input
-     * @param pattern
-     * @return
-     */
-    public static long parseString2Long(String input, String pattern) {
-        Date date = null;
-        try {
-            date = new SimpleDateFormat(pattern).parse(input);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-        return date.getTime();
     }
 
     /**
@@ -106,6 +93,23 @@ public class TimeUtil {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(input);
         return new SimpleDateFormat(pattern).format(calendar.getTime());
+    }
+
+    /**
+     * 将指定格式的时间字符串转换为时间戳
+     *
+     * @param input
+     * @param pattern
+     * @return
+     */
+    public static long parseString2Long(String input, String pattern) {
+        Date date = null;
+        try {
+            date = new SimpleDateFormat(pattern).parse(input);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+        return date.getTime();
     }
 
     /**
@@ -156,12 +160,9 @@ public class TimeUtil {
         return cal.getTimeInMillis();
     }
 
-
-    public static final String TIME_FORMAT = "HHmmss";
     /**
      * long转化为String类型的time formatType:HHmmss
      */
-
     public static String longToTime(long currentTime){
         return longToTime(currentTime, TIME_FORMAT);
     }
@@ -174,10 +175,10 @@ public class TimeUtil {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        return dateToString(date,TIME_FORMAT);
+        return dateToString(date, "");
     }
 
-    public static long timeToLong(String strTime){
+    public static long timeToLong(String strTime) {
         return timeToLong(strTime, TIME_FORMAT);
     }
 

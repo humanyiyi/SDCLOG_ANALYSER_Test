@@ -15,11 +15,20 @@ public class CombinationKey implements WritableComparable<CombinationKey> {
     private String firstKey;
     private int secondKey;
 
+    public CombinationKey() {
+        super();
+    }
+
+    public CombinationKey(String firstKey, int secondKey) {
+        super();
+        this.firstKey = firstKey;
+        this.secondKey = secondKey;
+    }
+
     @Override
     public int compareTo(CombinationKey o) {
         return this.firstKey.compareTo(o.getFirstKey());
     }
-
 
     @Override
     public void readFields(DataInput in) throws IOException {
@@ -34,17 +43,6 @@ public class CombinationKey implements WritableComparable<CombinationKey> {
             out.writeInt(secondKey);
         }
     }
-
-    public CombinationKey() {
-        super();
-    }
-
-    public CombinationKey(String firstKey, int secondKey) {
-        super();
-        this.firstKey = firstKey;
-        this.secondKey = secondKey;
-    }
-
 
     public String getFirstKey() {
         return firstKey;

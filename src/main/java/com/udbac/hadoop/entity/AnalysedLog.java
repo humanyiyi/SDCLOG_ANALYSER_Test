@@ -20,8 +20,9 @@ public class AnalysedLog {
     private String uType;
     private String wtAvv;
     private String wtPos;
+
     //事件的集合
-    private Map<String, String> eveMap = new HashMap<>();
+    private Map<String, String> eveMap = new HashMap<String, String>();
     //时长
     private BigDecimal duration;
     //每一条都是1
@@ -131,27 +132,36 @@ public class AnalysedLog {
         this.pageView = pageView;
     }
 
+
     @Override
     public String toString() {
+        String event = null;
         SplitValueBuilder svb = new SplitValueBuilder();
-        if (eveMap.containsKey("login"))
-            svb.add("1");
-        else svb.add("0");
-        if (eveMap.containsKey("menu"))
-            svb.add("1");
-        else svb.add("0");
-        if (eveMap.containsKey("user"))
-            svb.add("1");
-        else svb.add("0");
-        if (eveMap.containsKey("cart"))
-            svb.add("1");
-        else svb.add("0");
-        if (eveMap.containsKey("suc"))
-            svb.add("1");
-        else svb.add("0");
-        if (eveMap.containsKey("pay"))
-            svb.add("1");
-        else svb.add("0");
+        if (!eveMap.isEmpty()) {
+            if (eveMap.containsKey("login"))
+                svb.add("1");
+            else svb.add("0");
+            if (eveMap.containsKey("menu"))
+                svb.add("1");
+            else svb.add("0");
+            if (eveMap.containsKey("user"))
+                svb.add("1");
+            else svb.add("0");
+            if (eveMap.containsKey("cart"))
+                svb.add("1");
+            else svb.add("0");
+            if (eveMap.containsKey("suc"))
+                svb.add("1");
+            else svb.add("0");
+            if (eveMap.containsKey("pay"))
+                svb.add("1");
+            else svb.add("0");
+            event = svb.build();
+
+        } else {
+            event = "0|0|0|0|0|0";
+        }
+
 
         return new SplitValueBuilder()
                 .add(visitId)
@@ -164,7 +174,7 @@ public class AnalysedLog {
                 .add(uType)
                 .add(wtAvv)
                 .add(wtPos)
-                .add(svb.build())
+                .add(event)
                 .add(duration)
                 .add(pageView).build();
     }
