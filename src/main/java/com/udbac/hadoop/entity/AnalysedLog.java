@@ -137,7 +137,7 @@ public class AnalysedLog {
     public String toString() {
         String event = null;
         SplitValueBuilder svb = new SplitValueBuilder();
-        if (!eveMap.isEmpty()) {
+//        if (!eveMap.isEmpty()) {
             if (eveMap.containsKey("login"))
                 svb.add("1");
             else svb.add("0");
@@ -156,11 +156,12 @@ public class AnalysedLog {
             if (eveMap.containsKey("pay"))
                 svb.add("1");
             else svb.add("0");
-            event = svb.build();
 
-        } else {
-            event = "0|0|0|0|0|0";
-        }
+        event = svb.build();
+
+//        } else {
+//            event = "0|0|0|0|0|0";
+//        }
 
 
         return new SplitValueBuilder()

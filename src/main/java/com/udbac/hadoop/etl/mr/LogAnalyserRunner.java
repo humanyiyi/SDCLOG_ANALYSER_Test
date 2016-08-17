@@ -32,7 +32,7 @@ import java.io.IOException;
  * Created by root on 2016/7/22.
  */
 public class LogAnalyserRunner implements Tool {
-    private static final Logger logger = Logger.getLogger(LogAnalyserRunner.class);
+    private static Logger logger = Logger.getLogger(LogAnalyserRunner.class);
     private Configuration conf = new Configuration();
 
 
@@ -123,8 +123,8 @@ public class LogAnalyserRunner implements Tool {
             }
         }
 
-//        FileSystem fs = FileSystem.get(getConf());
-//        fs.delete(new Path(outputPath1), true);
+        FileSystem fs = FileSystem.get(getConf());
+        fs.delete(new Path(outputPath1), true);
         return job1.waitForCompletion(true) && job2.waitForCompletion(true) ? 0 : -1;
     }
 
@@ -148,7 +148,7 @@ public class LogAnalyserRunner implements Tool {
                     return true;
                 }
             } catch (IOException e) {
-                logger.error("Format path error.");
+                System.err.println("Format path error.");
             }
             return false;
         }
