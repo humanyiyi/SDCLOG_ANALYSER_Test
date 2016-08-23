@@ -178,10 +178,13 @@ public class TimeUtil {
         return dateToString(date, "");
     }
 
+
+    public static Integer timeToInt(String strTime) {
+        return Integer.valueOf(String.valueOf(timeToLong(strTime, TIME_FORMAT)));
+    }
     public static long timeToLong(String strTime) {
         return timeToLong(strTime, TIME_FORMAT);
     }
-
     /**
      * String类型的时间 转化为long类型的毫秒数 formatType:HH:mm:ss
      */
@@ -215,4 +218,5 @@ public class TimeUtil {
         date = formatter.parse("19700102"+strTime);
         return date;
     }
+
 }

@@ -22,21 +22,22 @@ public class LogUtil {
     private static IPSeekerExt ipSeekerExt = new IPSeekerExt();
 
     public static SDCLog handleLog(String logText) {
-        SDCLog sdcLog = new SDCLog();
+        SDCLog sdcLog = null;
         if (StringUtils.isNotBlank(logText)) {
+            sdcLog = new SDCLog();
             String splits[] = logText.split(SDCLogConstants.LOG_SEPARTIOR);
             if (splits.length == 15) {
                 String[] datetime = handleTime(splits[0] + " " + splits[1]).split(" ");
                 sdcLog.setDate(datetime[0]);
                 sdcLog.setTime(datetime[1].replace(":", ""));
-//                //处理IP
-//                sdcLog.setcIp(splits[2]);
-//                handleIP(sdcLog);
-//                //处理浏览器信息
-//                sdcLog.setCsUserAgent(splits[11]);
-//                handleUserAgent(sdcLog);
-                sdcLog.setcIp("IP地址");
-                sdcLog.setCsUserAgent("浏览器");
+                //处理IP
+                sdcLog.setcIp(splits[2]);
+                handleIP(sdcLog);
+                //处理浏览器信息
+                sdcLog.setCsUserAgent(splits[11]);
+                handleUserAgent(sdcLog);
+//                sdcLog.setcIp("IP地址");
+//                sdcLog.setCsUserAgent("浏览器");
 //                sdcLog.setsIp("服务器地址");
 //                sdcLog.setCsUriStem("REST");
                 int index = logText.indexOf(" ");

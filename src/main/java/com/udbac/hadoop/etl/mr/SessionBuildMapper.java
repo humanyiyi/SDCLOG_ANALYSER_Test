@@ -3,10 +3,17 @@ package com.udbac.hadoop.etl.mr;
 import com.udbac.hadoop.common.SDCLogConstants;
 import com.udbac.hadoop.entity.AnalysedLog;
 import com.udbac.hadoop.util.TimeUtil;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.lib.chain.ChainMapper;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -17,12 +24,12 @@ import java.util.UUID;
 /**
  * Created by root on 2016/7/26.
  */
-public class EndAnalyseMapper extends Mapper<LongWritable, Text, NullWritable, Text> {
+public class SessionBuildMapper extends Mapper<LongWritable, Text, NullWritable, Text> {
     private String lastdeviceId;
     private long last = 0;
     private long cur = 0;
     private long tmp = 0;
-    private BigDecimal duration;
+    private BigDecimal duration = null;
     private AnalysedLog analysedLog = null;
     private Map<String, AnalysedLog> oneVisit = new HashMap<String, AnalysedLog>();
 
@@ -44,9 +51,33 @@ public class EndAnalyseMapper extends Mapper<LongWritable, Text, NullWritable, T
         return analysedLog;
     }
 
+    public static void main(String[] args) {
+        Configuration conf = new Configuration();
+//        conf.set("fs.defaultFS", "hdfs://hadoop-01:8020");
+//        conf.set("mapred.jar", "C:\\Users\\Administrator\\Desktop\\wc.jar");
+        try {
+            Job job = Job.getInstance(conf, "LogAnalyser");
+            FileSystem fs = FileSystem.get(conf);
+            job.setJarByClass(SessionBuildMapper.class);
+            ChainMapper.addMapper(job, SessionBuildMapper.class, LongWritable.class, Text.class, NullWritable.class, Text.class, conf);
+            FileInputFormat.addInputPath(job, new Path("D:\\2016-07-07\\mr1out"));
+            //output目录不允许存在。
+            Path output = new Path("D:\\2016-07-07\\mr1out\\end");
+            if (fs.exists(output)) {
+                fs.delete(output, true);
+            }
+            FileOutputFormat.setOutputPath(job, output);
+            boolean f = job.waitForCompletion(true);
+            if (f) {
+                System.out.println("job 执行成功");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
-        super.setup(context);
         oneVisit.clear();
     }
 
@@ -54,29 +85,28 @@ public class EndAnalyseMapper extends Mapper<LongWritable, Text, NullWritable, T
     protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
         int index = value.toString().indexOf("\t");
         String log = value.toString().substring(index + 1);
-        String[] logSplit = log.split("\\|");
-        String[] eventSplit = null;
+        String[] logSplits = log.split("\\|");
+        String[] eventSplits = null;
 
-        if (10 == logSplit.length) {
-            eventSplit = logSplit[9].split(":");
+        if (10 == logSplits.length) {
+            eventSplits = logSplits[9].split(":");
         }
-
-        cur = TimeUtil.timeToLong(logSplit[1]);
-        if (logSplit[0].equals(lastdeviceId) && cur - last < SDCLogConstants.HALFHOUR_OF_MILLISECONDS) {
+        cur = TimeUtil.timeToLong(logSplits[1]);
+        if (logSplits[0].equals(lastdeviceId) && cur - last < SDCLogConstants.HALFHOUR_OF_MILLISECONDS) {
             tmp = cur - last;
             duration = duration.add(BigDecimal.valueOf(tmp));
             analysedLog.setDuration(duration);
-            if (null != eventSplit) {
-                analysedLog.getEveMap().put(eventSplit[0], eventSplit[1]);
+            if (null != eventSplits) {
+                analysedLog.getEveMap().put(eventSplits[0], eventSplits[1]);
             }
         } else {
             duration = BigDecimal.ZERO;
-            analysedLog = handleLog(logSplit, duration);
-            if (null != eventSplit) {
-                analysedLog.getEveMap().put(eventSplit[0], eventSplit[1]);
+            analysedLog = handleLog(logSplits, duration);
+            if (null != eventSplits) {
+                analysedLog.getEveMap().put(eventSplits[0], eventSplits[1]);
             }
         }
-        lastdeviceId = logSplit[0];
+        lastdeviceId = logSplits[0];
         last = cur;
         oneVisit.put(analysedLog.getVisitId(), analysedLog);
     }
@@ -89,32 +119,4 @@ public class EndAnalyseMapper extends Mapper<LongWritable, Text, NullWritable, T
         super.cleanup(context);
     }
 
-    //    public static void main(String[] args) {
-//        Configuration conf = new Configuration();
-////        conf.set("fs.defaultFS", "hdfs://hadoop-01:8020");
-////        conf.set("mapred.jar", "C:\\Users\\Administrator\\Desktop\\wc.jar");
-//        try {
-//            Job job = Job.getInstance(conf, "LogAnalyser");
-//            FileSystem fs = FileSystem.get(conf);
-//
-//            job.setJarByClass(EndAnalyseMapper.class);
-//
-//            ChainMapper.addMapper(job, EndAnalyseMapper.class, LongWritable.class, Text.class, NullWritable.class, Text.class, conf);
-//
-//            FileInputFormat.addInputPath(job, new Path("D:\\2016-08-15\\output"));
-//            //output目录不允许存在。
-//            Path output = new Path("D:\\2016-08-15\\output\\end");
-//            if (fs.exists(output)) {
-//                fs.delete(output, true);
-//            }
-//            FileOutputFormat.setOutputPath(job, output);
-//
-//            boolean f = job.waitForCompletion(true);
-//            if (f) {
-//                System.out.println("job 执行成功");
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
 }

@@ -6,15 +6,13 @@ import com.udbac.hadoop.common.DefinedGroupSort;
 import com.udbac.hadoop.common.SDCLogConstants;
 import com.udbac.hadoop.util.TimeUtil;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.PathFilter;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.compress.BZip2Codec;
+import org.apache.hadoop.io.compress.GzipCodec;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.CombineTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.jobcontrol.ControlledJob;
 import org.apache.hadoop.mapreduce.lib.jobcontrol.JobControl;
@@ -26,8 +24,6 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import java.io.IOException;
-
 /**
  * Created by root on 2016/7/22.
  */
@@ -35,12 +31,11 @@ public class LogAnalyserRunner implements Tool {
     private static Logger logger = Logger.getLogger(LogAnalyserRunner.class);
     private Configuration conf = new Configuration();
 
-
     public static void main(String[] args) {
         try {
             ToolRunner.run(new Configuration(), new LogAnalyserRunner(), args);
         } catch (Exception e) {
-            logger.error("执行日志解析job异常", e);
+            logger.error("执行JOB异常", e);
             throw new RuntimeException(e);
         }
     }
@@ -51,7 +46,7 @@ public class LogAnalyserRunner implements Tool {
 
     @Override
     public void setConf(Configuration configuration) {
-//        conf.set("fs.defaultFS", "hdfs://hadoop-04:8020");
+//        conf.set("fs.defaultFS", "hdfs://192.168.4.153:12228");
 //        conf.set("yarn.resourcemanager.hostname", "hadoop-01");
     }
 
@@ -64,12 +59,12 @@ public class LogAnalyserRunner implements Tool {
             System.exit(2);
         }
         String inputPath = inputArgs[0];
-        String outputPath1 = inputArgs[0] + "/output";
+        String outputPath1 = inputArgs[0] + "/mr1out";
         String outputPath2 = inputArgs[1];
         conf.set(SDCLogConstants.RUNNING_DATE_PARAMES, TimeUtil.getYesterday());
+        conf.set("inputPath", inputPath);
 
         Job job1 = Job.getInstance(conf, "LogAnalyserMap");
-
         job1.setJarByClass(LogAnalyserRunner.class);
         job1.setMapperClass(LogAnalyserMapper.class);
 
@@ -77,24 +72,22 @@ public class LogAnalyserRunner implements Tool {
         job1.setMapOutputValueClass(Text.class);
         job1.setSortComparatorClass(DefinedComparator.class);
         job1.setGroupingComparatorClass(DefinedGroupSort.class);
-        job1.setReducerClass(LogAnalyserReducer.class);
         job1.setNumReduceTasks(1);
-
         //加入控制容器
         ControlledJob ctrljob1 = new ControlledJob(conf);
         ctrljob1.setJob(job1);
-        TextInputFormat.setInputPathFilter(job1, TextPathFilter.class);
-        FileOutputFormat.setOutputCompressorClass(job1, BZip2Codec.class);
+//        TextInputFormat.setInputPathFilter(job1,TextPathFilter.class);
+        FileOutputFormat.setOutputCompressorClass(job1, GzipCodec.class);
         TextInputFormat.addInputPath(job1, new Path(inputPath));
         TextOutputFormat.setOutputPath(job1, new Path(outputPath1));
-        LazyOutputFormat.setOutputFormatClass(job1, TextOutputFormat.class);
-
 
         Job job2 = Job.getInstance(conf, "EndAnalyseeMap");
         job2.setJarByClass(LogAnalyserRunner.class);
-        job2.setMapperClass(EndAnalyseMapper.class);
+        job2.setInputFormatClass(CombineTextInputFormat.class);
+        job2.setMapperClass(SessionBuildMapper.class);
         job2.setMapOutputKeyClass(NullWritable.class);
         job2.setMapOutputValueClass(Text.class);
+        job2.setNumReduceTasks(1);
 
         //作业2加入控制容器
         ControlledJob ctrljob2 = new ControlledJob(conf);
@@ -115,42 +108,22 @@ public class LogAnalyserRunner implements Tool {
         Thread t = new Thread(jobCtrl);
         t.start();
 
+        FileSystem fs = FileSystem.get(conf);
+        Path midoutput = new Path(outputPath1);
+
         while (true) {
-            if (jobCtrl.allFinished()) {//如果作业成功完成，就打印成功作业的信息
+            if (jobCtrl.allFinished()) {
                 System.out.println(jobCtrl.getSuccessfulJobList());
                 jobCtrl.stop();
-                break;
+                fs.delete(midoutput, true);
+                return 0;
             }
-        }
-
-        FileSystem fs = FileSystem.get(getConf());
-        fs.delete(new Path(outputPath1), true);
-        return job1.waitForCompletion(true) && job2.waitForCompletion(true) ? 0 : -1;
-    }
-
-    static class TextPathFilter extends Configured implements PathFilter {
-        @Override
-        public boolean accept(Path path) {
-            String date1 = getConf().get(SDCLogConstants.RUNNING_DATE_PARAMES);
-            try {
-                FileSystem fs = FileSystem.get(getConf());
-                FileStatus fileStatus = fs.getFileStatus(path);
-
-                if (fileStatus.isDirectory()) {
-                    String name=path.getName();
-                    if (TimeUtil.isValidateRunningDate(name)) {//文件夹名字 yyyyMMdd
-                        if (name.equals(date1)) {//目录名字是否为前一天日期 yyyyMMdd
-                            return true;
-                        }
-                    }
-                }
-                if (fileStatus.isFile()) {
-                    return true;
-                }
-            } catch (IOException e) {
-                System.err.println("Format path error.");
+            if (jobCtrl.getFailedJobList().size() > 0) {
+                System.out.println(jobCtrl.getFailedJobList());
+                jobCtrl.stop();
+                fs.delete(midoutput, true);
+                return 1;
             }
-            return false;
         }
     }
 }

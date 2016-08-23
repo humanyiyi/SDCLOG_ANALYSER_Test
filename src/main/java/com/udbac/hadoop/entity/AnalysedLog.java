@@ -22,7 +22,15 @@ public class AnalysedLog {
     private String wtPos;
 
     //事件的集合
-    private Map<String, String> eveMap = new HashMap<String, String>();
+    private Map<String, String> eveMap = new HashMap<String, String>() {{
+        put("login", "0");
+        put("menu", "0");
+        put("user", "0");
+        put("cart", "0");
+        put("suc", "0");
+        put("pay", "0");
+
+    }};
     //时长
     private BigDecimal duration;
     //每一条都是1
@@ -135,34 +143,16 @@ public class AnalysedLog {
 
     @Override
     public String toString() {
-        String event = null;
+
         SplitValueBuilder svb = new SplitValueBuilder();
-//        if (!eveMap.isEmpty()) {
-            if (eveMap.containsKey("login"))
-                svb.add("1");
-            else svb.add("0");
-            if (eveMap.containsKey("menu"))
-                svb.add("1");
-            else svb.add("0");
-            if (eveMap.containsKey("user"))
-                svb.add("1");
-            else svb.add("0");
-            if (eveMap.containsKey("cart"))
-                svb.add("1");
-            else svb.add("0");
-            if (eveMap.containsKey("suc"))
-                svb.add("1");
-            else svb.add("0");
-            if (eveMap.containsKey("pay"))
-                svb.add("1");
-            else svb.add("0");
-
-        event = svb.build();
-
-//        } else {
-//            event = "0|0|0|0|0|0";
-//        }
-
+        svb
+                .add(eveMap.get("login"))
+                .add(eveMap.get("menu"))
+                .add(eveMap.get("user"))
+                .add(eveMap.get("cart"))
+                .add(eveMap.get("suc"))
+                .add(eveMap.get("pay"));
+        String event = svb.build();
 
         return new SplitValueBuilder()
                 .add(visitId)
