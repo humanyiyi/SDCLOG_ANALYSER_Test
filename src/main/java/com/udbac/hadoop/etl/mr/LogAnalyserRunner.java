@@ -10,14 +10,10 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.compress.GzipCodec;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.lib.input.CombineTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.jobcontrol.ControlledJob;
 import org.apache.hadoop.mapreduce.lib.jobcontrol.JobControl;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.LazyOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.Tool;
@@ -77,18 +73,15 @@ public class LogAnalyserRunner implements Tool {
         ControlledJob ctrljob1 = new ControlledJob(conf);
         ctrljob1.setJob(job1);
 //        TextInputFormat.setInputPathFilter(job1,TextPathFilter.class);
-        FileOutputFormat.setOutputCompressorClass(job1, GzipCodec.class);
         TextInputFormat.addInputPath(job1, new Path(inputPath));
         TextOutputFormat.setOutputPath(job1, new Path(outputPath1));
 
-        Job job2 = Job.getInstance(conf, "EndAnalyseeMap");
+        Job job2 = Job.getInstance(conf, "SessionBuildMapper");
         job2.setJarByClass(LogAnalyserRunner.class);
-        job2.setInputFormatClass(CombineTextInputFormat.class);
         job2.setMapperClass(SessionBuildMapper.class);
         job2.setMapOutputKeyClass(NullWritable.class);
         job2.setMapOutputValueClass(Text.class);
         job2.setNumReduceTasks(1);
-
         //作业2加入控制容器
         ControlledJob ctrljob2 = new ControlledJob(conf);
         ctrljob2.setJob(job2);
@@ -98,7 +91,7 @@ public class LogAnalyserRunner implements Tool {
         //输入路径是上一个作业的输出路径
         TextInputFormat.addInputPath(job2, new Path(outputPath1));
         TextOutputFormat.setOutputPath(job2, new Path(outputPath2));
-        LazyOutputFormat.setOutputFormatClass(job2, TextOutputFormat.class);
+        //LazyOutputFormat.setOutputFormatClass(job2, TextOutputFormat.class);
         //主的控制容器，控制上面的总的两个子作业
         JobControl jobCtrl = new JobControl("myctrl");
         //添加到总的JobControl里，进行控制

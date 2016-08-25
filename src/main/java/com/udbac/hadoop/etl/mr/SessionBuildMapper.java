@@ -2,18 +2,14 @@ package com.udbac.hadoop.etl.mr;
 
 import com.udbac.hadoop.common.SDCLogConstants;
 import com.udbac.hadoop.entity.AnalysedLog;
+import com.udbac.hadoop.etl.util.IPSeekerExt;
 import com.udbac.hadoop.util.TimeUtil;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
+import com.udbac.hadoop.util.UserAgentUtil;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.lib.chain.ChainMapper;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -25,6 +21,7 @@ import java.util.UUID;
  * Created by root on 2016/7/26.
  */
 public class SessionBuildMapper extends Mapper<LongWritable, Text, NullWritable, Text> {
+    private static IPSeekerExt ipSeekerExt = new IPSeekerExt();
     private String lastdeviceId;
     private long last = 0;
     private long cur = 0;
@@ -41,7 +38,9 @@ public class SessionBuildMapper extends Mapper<LongWritable, Text, NullWritable,
         analysedLog.setTime(logSplit[1]);
         analysedLog.setDate(logSplit[2]);
         analysedLog.setcIp(logSplit[3]);
-        analysedLog.setCsUserAgent(logSplit[4]);
+//        handleIP(analysedLog);
+        analysedLog.setCsUserAgent("浏览器");
+//        handleUserAgent(analysedLog);
         analysedLog.setUtmSource(logSplit[5]);
         analysedLog.setuType(logSplit[6]);
         analysedLog.setWtAvv(logSplit[7]);
@@ -51,28 +50,22 @@ public class SessionBuildMapper extends Mapper<LongWritable, Text, NullWritable,
         return analysedLog;
     }
 
-    public static void main(String[] args) {
-        Configuration conf = new Configuration();
-//        conf.set("fs.defaultFS", "hdfs://hadoop-01:8020");
-//        conf.set("mapred.jar", "C:\\Users\\Administrator\\Desktop\\wc.jar");
-        try {
-            Job job = Job.getInstance(conf, "LogAnalyser");
-            FileSystem fs = FileSystem.get(conf);
-            job.setJarByClass(SessionBuildMapper.class);
-            ChainMapper.addMapper(job, SessionBuildMapper.class, LongWritable.class, Text.class, NullWritable.class, Text.class, conf);
-            FileInputFormat.addInputPath(job, new Path("D:\\2016-07-07\\mr1out"));
-            //output目录不允许存在。
-            Path output = new Path("D:\\2016-07-07\\mr1out\\end");
-            if (fs.exists(output)) {
-                fs.delete(output, true);
+    private static void handleIP(AnalysedLog analysedLog) {
+        if (StringUtils.isNotBlank(analysedLog.getcIp())) {
+            String ip = analysedLog.getcIp();
+            IPSeekerExt.RegionInfo info = ipSeekerExt.analyticIp(ip);
+            if (info != null) {
+                analysedLog.setcIp(info.getCountry() + "," + info.getProvince() + "," + info.getCity());
             }
-            FileOutputFormat.setOutputPath(job, output);
-            boolean f = job.waitForCompletion(true);
-            if (f) {
-                System.out.println("job 执行成功");
+        }
+    }
+
+    private static void handleUserAgent(AnalysedLog analysedLog) {
+        if (StringUtils.isNotBlank(analysedLog.getCsUserAgent())) {
+            UserAgentUtil.UserAgentInfo info = UserAgentUtil.analyticUserAgent(analysedLog.getCsUserAgent());
+            if (info != null) {
+                analysedLog.setCsUserAgent(info.toString());
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -119,4 +112,28 @@ public class SessionBuildMapper extends Mapper<LongWritable, Text, NullWritable,
         super.cleanup(context);
     }
 
+//    public static void main(String[] args) {
+//        Configuration conf = new Configuration();
+////        conf.set("fs.defaultFS", "hdfs://hadoop-01:8020");
+////        conf.set("mapred.jar", "C:\\Users\\Administrator\\Desktop\\wc.jar");
+//        try {
+//            Job job = Job.getInstance(conf, "LogAnalyser");
+//            FileSystem fs = FileSystem.get(conf);
+//            job.setJarByClass(SessionBuildMapper.class);
+//            ChainMapper.addMapper(job, SessionBuildMapper.class, LongWritable.class, Text.class, NullWritable.class, Text.class, conf);
+//            FileInputFormat.addInputPath(job, new Path("D:\\2016-07-07\\mr1out"));
+//            //output目录不允许存在。
+//            Path output = new Path("D:\\2016-07-07\\mr1out\\end");
+//            if (fs.exists(output)) {
+//                fs.delete(output, true);
+//            }
+//            FileOutputFormat.setOutputPath(job, output);
+//            boolean f = job.waitForCompletion(true);
+//            if (f) {
+//                System.out.println("job 执行成功");
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 }

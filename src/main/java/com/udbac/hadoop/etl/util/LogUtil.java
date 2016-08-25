@@ -2,7 +2,6 @@ package com.udbac.hadoop.etl.util;
 
 import com.udbac.hadoop.common.SDCLogConstants;
 import com.udbac.hadoop.entity.SDCLog;
-import com.udbac.hadoop.util.UserAgentUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -19,7 +18,6 @@ import java.util.HashMap;
  */
 public class LogUtil {
     private static final Logger logger = Logger.getLogger(LogUtil.class);
-    private static IPSeekerExt ipSeekerExt = new IPSeekerExt();
 
     public static SDCLog handleLog(String logText) {
         SDCLog sdcLog = null;
@@ -30,14 +28,8 @@ public class LogUtil {
                 String[] datetime = handleTime(splits[0] + " " + splits[1]).split(" ");
                 sdcLog.setDate(datetime[0]);
                 sdcLog.setTime(datetime[1].replace(":", ""));
-                //处理IP
                 sdcLog.setcIp(splits[2]);
-                handleIP(sdcLog);
-                //处理浏览器信息
                 sdcLog.setCsUserAgent(splits[11]);
-                handleUserAgent(sdcLog);
-//                sdcLog.setcIp("IP地址");
-//                sdcLog.setCsUserAgent("浏览器");
 //                sdcLog.setsIp("服务器地址");
 //                sdcLog.setCsUriStem("REST");
                 int index = logText.indexOf(" ");
@@ -113,22 +105,5 @@ public class LogUtil {
         }
     }
 
-    private static void handleIP(SDCLog sdcLog) {
-        if (StringUtils.isNotBlank(sdcLog.getcIp())) {
-            String ip = sdcLog.getcIp();
-            IPSeekerExt.RegionInfo info = ipSeekerExt.analyticIp(ip);
-            if (info != null) {
-                sdcLog.setcIp(info.getCountry()+","+info.getProvince()+","+info.getCity());
-            }
-        }
-    }
 
-    private static void handleUserAgent(SDCLog sdcLog) {
-        if (StringUtils.isNotBlank(sdcLog.getCsUserAgent())) {
-            UserAgentUtil.UserAgentInfo info = UserAgentUtil.analyticUserAgent(sdcLog.getCsUserAgent());
-            if (info != null) {
-                sdcLog.setCsUserAgent(info.toString());
-            }
-        }
-    }
 }
