@@ -11,6 +11,7 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import java.util.UUID;
  */
 public class SessionBuildMapper extends Mapper<LongWritable, Text, NullWritable, Text> {
     private static IPSeekerExt ipSeekerExt = new IPSeekerExt();
+    File file = null;
     private String lastdeviceId;
     private long last = 0;
     private long cur = 0;
@@ -38,9 +40,9 @@ public class SessionBuildMapper extends Mapper<LongWritable, Text, NullWritable,
         analysedLog.setTime(logSplit[1]);
         analysedLog.setDate(logSplit[2]);
         analysedLog.setcIp(logSplit[3]);
-//        handleIP(analysedLog);
-        analysedLog.setCsUserAgent("浏览器");
-//        handleUserAgent(analysedLog);
+        handleIP(analysedLog);
+        analysedLog.setCsUserAgent(logSplit[4]);
+        handleUserAgent(analysedLog);
         analysedLog.setUtmSource(logSplit[5]);
         analysedLog.setuType(logSplit[6]);
         analysedLog.setWtAvv(logSplit[7]);
@@ -51,9 +53,9 @@ public class SessionBuildMapper extends Mapper<LongWritable, Text, NullWritable,
     }
 
     private static void handleIP(AnalysedLog analysedLog) {
-        if (StringUtils.isNotBlank(analysedLog.getcIp())) {
-            String ip = analysedLog.getcIp();
-            IPSeekerExt.RegionInfo info = ipSeekerExt.analyticIp(ip);
+        String uip = analysedLog.getcIp();
+        if (StringUtils.isNotBlank(uip)) {
+            IPSeekerExt.RegionInfo info = ipSeekerExt.analyticIp(uip);
             if (info != null) {
                 analysedLog.setcIp(info.getCountry() + "," + info.getProvince() + "," + info.getCity());
             }
@@ -61,8 +63,9 @@ public class SessionBuildMapper extends Mapper<LongWritable, Text, NullWritable,
     }
 
     private static void handleUserAgent(AnalysedLog analysedLog) {
-        if (StringUtils.isNotBlank(analysedLog.getCsUserAgent())) {
-            UserAgentUtil.UserAgentInfo info = UserAgentUtil.analyticUserAgent(analysedLog.getCsUserAgent());
+        String csUserAgent = analysedLog.getCsUserAgent();
+        if (StringUtils.isNotBlank(csUserAgent)) {
+            UserAgentUtil.UserAgentInfo info = UserAgentUtil.analyticUserAgent(csUserAgent);
             if (info != null) {
                 analysedLog.setCsUserAgent(info.toString());
             }
@@ -71,6 +74,17 @@ public class SessionBuildMapper extends Mapper<LongWritable, Text, NullWritable,
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
+//        if (context.getCacheFiles() != null && context.getCacheFiles().length > 0) {
+//            URI mappingFileUri = context.getCacheFiles()[0];
+//            if (mappingFileUri != null) {
+//                // Would probably be a good idea to inspect the URI to see what the bit after the # is, as that's the file name
+//                System.out.println("Mapping File: " + FileUtils.readFileToString(new File("./qqwry.dat")));
+//            } else {
+//                System.out.println(">>>>>> NO MAPPING FILE");
+//            }
+//        } else {
+//            System.out.println(">>>>>> NO CACHE FILES AT ALL");
+//        }
         oneVisit.clear();
     }
 

@@ -20,10 +20,10 @@ import java.util.List;
  * 不管为0x1还是0x2，后三个字节都是实际国家名的文件内绝对偏移
  * 如果是地区记录，0x1和0x2的含义不明，但是如果出现这两个字节，也肯定是跟着3个字节偏移，如果不是 则为0结尾字符串 三.
  * "起始地址/结束地址偏移"记录区 1. 每条记录7字节，按照起始地址从小到大排列 a. 起始IP地址，4字节 b. 结束ip地址的绝对偏移，3字节
- * 
+ *
  * 注意，这个文件里的ip地址和所有的偏移量均采用little-endian格式，而java是采用 big-endian格式的，要注意转换
- * 
- * 
+ *
+ *
  *
  */
 public class IPSeeker {
@@ -31,15 +31,14 @@ public class IPSeeker {
     private static final int IP_RECORD_LENGTH = 7;
     private static final byte AREA_FOLLOWED = 0x01;
     private static final byte NO_AREA = 0x2;
-
+    // 单一模式实例
+    private static IPSeeker instance = null;
     // 用来做为cache，查询一个ip时首先查看cache，以减少不必要的重复查找
     private Hashtable ipCache;
     // 随机文件访问类
     private RandomAccessFile ipFile;
     // 内存映射文件
     private MappedByteBuffer mbb;
-    // 单一模式实例
-    private static IPSeeker instance = null;
     // 起始地区的开始和结束的绝对偏移
     private long ipBegin, ipEnd;
     // 为提高效率而采用的临时变量
@@ -58,13 +57,13 @@ public class IPSeeker {
         buf = new byte[100];
         b4 = new byte[4];
         b3 = new byte[3];
+        String ipFilePath = null;
         try {
-            String ipFilePath = IPSeeker.class.getResource("/qqwry.dat").getFile();
+            ipFilePath = IPSeeker.class.getResource("/qqwry.dat").getPath();
             ipFile = new RandomAccessFile(ipFilePath, "r");
         } catch (FileNotFoundException e) {
-            System.out.println("IP地址信息文件没有找到，IP显示功能将无法使用");
+            System.out.println(ipFilePath + "IP地址信息文件没有找到，IP显示功能将无法使用");
             ipFile = null;
-
         }
         // 如果打开文件成功，读取文件头信息
         if (ipFile != null) {
@@ -96,7 +95,7 @@ public class IPSeeker {
     /** */
     /**
      * 给定一个地点的不完全名字，得到一系列包含s子串的IP范围记录
-     * 
+     *
      * @param s
      *            地点子串
      * @return 包含IPEntry类型的List
@@ -132,7 +131,7 @@ public class IPSeeker {
     /** */
     /**
      * 给定一个地点的不完全名字，得到一系列包含s子串的IP范围记录
-     * 
+     *
      * @param s
      *            地点子串
      * @return 包含IPEntry类型的List
@@ -177,7 +176,7 @@ public class IPSeeker {
     /** */
     /**
      * 从内存映射文件的offset位置开始的3个字节读取一个int
-     * 
+     *
      * @param offset
      * @return
      */
@@ -189,7 +188,7 @@ public class IPSeeker {
     /** */
     /**
      * 从内存映射文件的当前位置开始的3个字节读取一个int
-     * 
+     *
      * @return
      */
     private int readInt3() {
@@ -199,7 +198,7 @@ public class IPSeeker {
     /** */
     /**
      * 根据IP得到国家名
-     * 
+     *
      * @param ip
      *            ip的字节数组形式
      * @return 国家名字符串
@@ -224,7 +223,7 @@ public class IPSeeker {
     /** */
     /**
      * 根据IP得到国家名
-     * 
+     *
      * @param ip
      *            IP的字符串形式
      * @return 国家名字符串
@@ -236,7 +235,7 @@ public class IPSeeker {
     /** */
     /**
      * 根据IP得到地区名
-     * 
+     *
      * @param ip
      *            ip的字节数组形式
      * @return 地区名字符串
@@ -260,7 +259,7 @@ public class IPSeeker {
 
     /**
      * 根据IP得到地区名
-     * 
+     *
      * @param ip
      *            IP的字符串形式
      * @return 地区名字符串
@@ -272,7 +271,7 @@ public class IPSeeker {
     /** */
     /**
      * 根据ip搜索ip信息文件，得到IPLocation结构，所搜索的ip参数从类成员ip中得到
-     * 
+     *
      * @param ip
      *            要查询的IP
      * @return IPLocation结构
@@ -292,7 +291,7 @@ public class IPSeeker {
 
     /**
      * 从offset位置读取4个字节为一个long，因为java为big-endian格式，所以没办法 用了这么一个函数来做转换
-     * 
+     *
      * @param offset
      * @return 读取的long值，返回-1表示读取文件失败
      */
@@ -312,7 +311,7 @@ public class IPSeeker {
 
     /**
      * 从offset位置读取3个字节为一个long，因为java为big-endian格式，所以没办法 用了这么一个函数来做转换
-     * 
+     *
      * @param offset
      * @return 读取的long值，返回-1表示读取文件失败
      */
@@ -332,7 +331,7 @@ public class IPSeeker {
 
     /**
      * 从当前位置读取3个字节转换成long
-     * 
+     *
      * @return
      */
     private long readLong3() {
@@ -351,7 +350,7 @@ public class IPSeeker {
     /**
      * 从offset位置读取四个字节的ip地址放入ip数组中，读取后的ip为big-endian格式，但是
      * 文件中是little-endian形式，将会进行转换
-     * 
+     *
      * @param offset
      * @param ip
      */
@@ -373,7 +372,7 @@ public class IPSeeker {
     /**
      * 从offset位置读取四个字节的ip地址放入ip数组中，读取后的ip为big-endian格式，但是
      * 文件中是little-endian形式，将会进行转换
-     * 
+     *
      * @param offset
      * @param ip
      */
@@ -390,7 +389,7 @@ public class IPSeeker {
 
     /**
      * 把类成员ip和beginIp比较，注意这个beginIp是big-endian的
-     * 
+     *
      * @param ip
      *            要查询的IP
      * @param beginIp
@@ -408,7 +407,7 @@ public class IPSeeker {
 
     /**
      * 把两个byte当作无符号数进行比较
-     * 
+     *
      * @param b1
      * @param b2
      * @return 若b1大于b2则返回1，相等返回0，小于返回-1
@@ -424,7 +423,7 @@ public class IPSeeker {
 
     /**
      * 这个方法将根据ip的内容，定位到包含这个ip国家地区的记录处，返回一个绝对偏移 方法使用二分法查找。
-     * 
+     *
      * @param ip
      *            要查询的IP
      * @return 如果找到了，返回结束IP的偏移，如果没有找到，返回-1
@@ -469,7 +468,7 @@ public class IPSeeker {
 
     /**
      * 得到begin偏移和end偏移中间位置记录的偏移
-     * 
+     *
      * @param begin
      * @param end
      * @return
@@ -484,7 +483,7 @@ public class IPSeeker {
 
     /**
      * 给定一个ip国家地区记录的偏移，返回一个IPLocation结构
-     * 
+     *
      * @param offset
      * @return
      */
@@ -556,7 +555,7 @@ public class IPSeeker {
 
     /**
      * 从offset偏移开始解析后面的字节，读出一个地区名
-     * 
+     *
      * @param offset
      * @return 地区名字符串
      * @throws IOException
@@ -593,7 +592,7 @@ public class IPSeeker {
 
     /**
      * 从offset偏移处读取一个以0结束的字符串
-     * 
+     *
      * @param offset
      * @return 读取的字符串，出错返回空字符串
      */
@@ -613,7 +612,7 @@ public class IPSeeker {
 
     /**
      * 从内存映射文件的offset位置得到一个0结尾字符串
-     * 
+     *
      * @param offset
      * @return
      */
@@ -639,43 +638,23 @@ public class IPSeeker {
     }
 
     /**
-     * * 用来封装ip相关信息，目前只有两个字段，ip所在的国家和地区
-     * 
-     * 
-     * @author swallow
+     * 获取全部ip地址集合列表
+     *
+     * @return
      */
-    public class IPLocation {
-        public String country;
-        public String area;
-
-        public IPLocation() {
-            country = area = "";
+    public List<String> getAllIp() {
+        List<String> list = new ArrayList<String>();
+        byte[] buf = new byte[4];
+        for (long i = ipBegin; i < ipEnd; i += IP_RECORD_LENGTH) {
+            try {
+                this.readIP(this.readLong3(i + 4), buf); // 读取ip，最终ip放到buf中
+                String ip = IPSeekerUtils.getIpStringFromBytes(buf);
+                list.add(ip);
+            } catch (Exception e) {
+                // nothing
+            }
         }
-
-        public IPLocation getCopy() {
-            IPLocation ret = new IPLocation();
-            ret.country = country;
-            ret.area = area;
-            return ret;
-        }
-    }
-
-    /**
-     * 一条IP范围记录，不仅包括国家和区域，也包括起始IP和结束IP *
-     */
-    public class IPEntry {
-        public String beginIp;
-        public String endIp;
-        public String country;
-        public String area;
-
-        public IPEntry() {
-            beginIp = endIp = country = area = "";
-        }
-
-        public String toString() {
-            return this.area + " " + this.country + "IP  Χ:" + this.beginIp + "-" + this.endIp;
-        }
+        return list;
     }
 
     /**
@@ -684,7 +663,7 @@ public class IPSeeker {
     public static class IPSeekerUtils {
         /**
          * 从ip的字符串形式得到字节数组形式
-         * 
+         *
          * @param ip
          *            字符串形式的ip
          * @return 字节数组形式的ip
@@ -705,7 +684,7 @@ public class IPSeeker {
 
         /**
          * 对原始字符串进行编码转换，如果失败，返回原始的字符串
-         * 
+         *
          * @param s
          *            原始字符串
          * @param srcEncoding
@@ -724,7 +703,7 @@ public class IPSeeker {
 
         /**
          * 根据某种编码方式将字节数组转换成字符串
-         * 
+         *
          * @param b
          *            字节数组
          * @param encoding
@@ -741,7 +720,7 @@ public class IPSeeker {
 
         /**
          * 根据某种编码方式将字节数组转换成字符串
-         * 
+         *
          * @param b
          *            字节数组
          * @param offset
@@ -779,22 +758,42 @@ public class IPSeeker {
     }
 
     /**
-     * 获取全部ip地址集合列表
-     * 
-     * @return
+     * * 用来封装ip相关信息，目前只有两个字段，ip所在的国家和地区
+     *
+     *
+     * @author swallow
      */
-    public List<String> getAllIp() {
-		List<String> list = new ArrayList<String>();
-		byte[] buf = new byte[4];
-		for (long i = ipBegin; i < ipEnd; i += IP_RECORD_LENGTH) {
-			try {
-				this.readIP(this.readLong3(i + 4), buf); // 读取ip，最终ip放到buf中
-				String ip = IPSeekerUtils.getIpStringFromBytes(buf);
-				list.add(ip);
-			} catch (Exception e) {
-				// nothing
-			}
-		}
-		return list;
-	}
+    public class IPLocation {
+        public String country;
+        public String area;
+
+        public IPLocation() {
+            country = area = "";
+        }
+
+        public IPLocation getCopy() {
+            IPLocation ret = new IPLocation();
+            ret.country = country;
+            ret.area = area;
+            return ret;
+        }
+    }
+
+    /**
+     * 一条IP范围记录，不仅包括国家和区域，也包括起始IP和结束IP *
+     */
+    public class IPEntry {
+        public String beginIp;
+        public String endIp;
+        public String country;
+        public String area;
+
+        public IPEntry() {
+            beginIp = endIp = country = area = "";
+        }
+
+        public String toString() {
+            return this.area + " " + this.country + "IP  Χ:" + this.beginIp + "-" + this.endIp;
+        }
+    }
 }

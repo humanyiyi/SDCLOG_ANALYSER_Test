@@ -1,9 +1,9 @@
 package com.udbac.hadoop.util;
 
-import java.io.IOException;
-
 import cz.mallat.uasparser.OnlineUpdater;
 import cz.mallat.uasparser.UASparser;
+
+import java.io.IOException;
 
 /**
  * 解析浏览器的user agent的工具类，内部就是调用这个uasparser jar文件
@@ -15,8 +15,8 @@ public class UserAgentUtil {
 	// static 代码块, 初始化uasParser对象
 	static {
 		try {
-			uasParser = new UASparser(OnlineUpdater.getVendoredInputStream());
-		} catch (IOException e) {
+            uasParser = new UASparser(OnlineUpdater.getVendoredInputStream());
+        } catch (IOException e) {
 			e.printStackTrace();
 		}
 	}

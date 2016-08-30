@@ -16,18 +16,16 @@ public class DefinedComparator extends WritableComparator {
 
     public int compare(WritableComparable combinationKeyOne,
                        WritableComparable CombinationKeyOther) {
-        logger.debug("---------enter DefinedComparator flag---------");
+        logger.debug("---------进入自定义排序---------");
 
         CombinationKey c1 = (CombinationKey) combinationKeyOne;
         CombinationKey c2 = (CombinationKey) CombinationKeyOther;
 
         if (!c1.getFirstKey().equals(c2.getFirstKey())) {
-            logger.debug("---------out DefinedComparator flag---------");
+            logger.debug("---------退出自定义排序1---------");
             return c1.getFirstKey().compareTo(c2.getFirstKey());
         } else {
-            //按照组合键的第二个键的升序排序，将c1和c2倒过来则是按照数字的降序排序(假设2)
-            logger.debug("---------out DefinedComparator flag---------");
-            //0,负数,正数
+            logger.debug("---------退出自定义排序2---------");
             return Integer.compare(c1.getSecondKey(), c2.getSecondKey());
         }
 

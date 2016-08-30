@@ -16,12 +16,12 @@ public class DefinedGroupSort extends WritableComparator {
 
     @Override
     public int compare(WritableComparable a, WritableComparable b) {
-//        logger.info("-------enter DefinedGroupSort flag-------");
+        logger.debug("-------进入 自定义分组 flag-------");
         CombinationKey ck1 = (CombinationKey) a;
         CombinationKey ck2 = (CombinationKey) b;
-//        logger.info("-------Grouping result:"+ck1.getFirstKey().
-//                compareTo(ck2.getFirstKey())+"-------");
-//        logger.info("-------out DefinedGroupSort flag-------");
+        logger.debug("-------自定义分组key:" + ck1.getFirstKey().
+                compareTo(ck2.getFirstKey()) + "-------");
+        logger.debug("-------瑞出自定义分组 flag-------");
         return ck1.getFirstKey().compareTo(ck2.getFirstKey());
     }
 }

@@ -20,18 +20,19 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
+import java.net.URI;
+
 /**
  * Created by root on 2016/7/22.
  */
 public class LogAnalyserRunner implements Tool {
     private static Logger logger = Logger.getLogger(LogAnalyserRunner.class);
     private Configuration conf = new Configuration();
-
     public static void main(String[] args) {
         try {
             ToolRunner.run(new Configuration(), new LogAnalyserRunner(), args);
         } catch (Exception e) {
-            logger.error("执行JOB异常", e);
+            logger.info("执行JOB异常", e);
             throw new RuntimeException(e);
         }
     }
@@ -42,8 +43,7 @@ public class LogAnalyserRunner implements Tool {
 
     @Override
     public void setConf(Configuration configuration) {
-//        conf.set("fs.defaultFS", "hdfs://192.168.4.153:12228");
-//        conf.set("yarn.resourcemanager.hostname", "hadoop-01");
+//        conf.set("mapred.jar", "");
     }
 
     @Override
@@ -77,6 +77,7 @@ public class LogAnalyserRunner implements Tool {
         TextOutputFormat.setOutputPath(job1, new Path(outputPath1));
 
         Job job2 = Job.getInstance(conf, "SessionBuildMapper");
+        job2.addCacheFile(new URI("/user/root/lib/qqwry.dat"));
         job2.setJarByClass(LogAnalyserRunner.class);
         job2.setMapperClass(SessionBuildMapper.class);
         job2.setMapOutputKeyClass(NullWritable.class);
