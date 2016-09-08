@@ -40,9 +40,9 @@ public class SessionBuildMapper extends Mapper<LongWritable, Text, NullWritable,
         analysedLog.setTime(logSplit[1]);
         analysedLog.setDate(logSplit[2]);
         analysedLog.setcIp(logSplit[3]);
-        handleIP(analysedLog);
-        analysedLog.setCsUserAgent(logSplit[4]);
-        handleUserAgent(analysedLog);
+//        handleIP(analysedLog);
+        analysedLog.setCsUserAgent("Agent");
+//        handleUserAgent(analysedLog);
         analysedLog.setUtmSource(logSplit[5]);
         analysedLog.setuType(logSplit[6]);
         analysedLog.setWtAvv(logSplit[7]);

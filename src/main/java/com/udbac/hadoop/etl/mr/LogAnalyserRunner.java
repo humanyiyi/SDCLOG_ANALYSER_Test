@@ -77,7 +77,7 @@ public class LogAnalyserRunner implements Tool {
         TextOutputFormat.setOutputPath(job1, new Path(outputPath1));
 
         Job job2 = Job.getInstance(conf, "SessionBuildMapper");
-        job2.addCacheFile(new URI("/user/root/lib/qqwry.dat"));
+//        job2.addCacheFile(new URI("/user/root/lib/qqwry.dat"));
         job2.setJarByClass(LogAnalyserRunner.class);
         job2.setMapperClass(SessionBuildMapper.class);
         job2.setMapOutputKeyClass(NullWritable.class);
@@ -109,13 +109,13 @@ public class LogAnalyserRunner implements Tool {
             if (jobCtrl.allFinished()) {
                 System.out.println(jobCtrl.getSuccessfulJobList());
                 jobCtrl.stop();
-                fs.delete(midoutput, true);
+//                fs.delete(midoutput, true);
                 return 0;
             }
             if (jobCtrl.getFailedJobList().size() > 0) {
                 System.out.println(jobCtrl.getFailedJobList());
                 jobCtrl.stop();
-                fs.delete(midoutput, true);
+//                fs.delete(midoutput, true);
                 return 1;
             }
         }

@@ -29,7 +29,7 @@ public class LogUtil {
                 sdcLog.setDate(datetime[0]);
                 sdcLog.setTime(datetime[1].replace(":", ""));
                 sdcLog.setcIp(splits[2]);
-                sdcLog.setCsUserAgent(splits[11]);
+                sdcLog.setCsUserAgent("AGENT");
 //                sdcLog.setsIp("服务器地址");
 //                sdcLog.setCsUriStem("REST");
                 int index = logText.indexOf(" ");

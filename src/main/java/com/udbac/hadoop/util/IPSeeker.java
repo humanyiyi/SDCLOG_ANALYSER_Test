@@ -60,6 +60,7 @@ public class IPSeeker {
         String ipFilePath = null;
         try {
             ipFilePath = IPSeeker.class.getResource("/qqwry.dat").getPath();
+            System.out.println(ipFilePath);
             ipFile = new RandomAccessFile(ipFilePath, "r");
         } catch (FileNotFoundException e) {
             System.out.println(ipFilePath + "IP地址信息文件没有找到，IP显示功能将无法使用");
