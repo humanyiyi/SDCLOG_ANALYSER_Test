@@ -1,107 +1,135 @@
 package com.udbac.hadoop.entity;
 
-import com.udbac.hadoop.common.SDCLogConstants;
-import com.udbac.hadoop.util.SplitValueBuilder;
-import jodd.util.StringUtil;
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableUtils;
-
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Created by root on 2016/7/22.
+ * Created by root on 2016/12/30.
  */
 public class SDCLog {
-    //列
-    private String date;
-    private String time;
-    private String cIp;
-    private String sIp;
-    private String csUriStem;
-    private String csUserAgent;
+    private String date_time;
+    private String c_ip;
+    private String cs_username;
+    private String cs_host;
+    private String cs_method;
+    private String cs_uri_stem;
+    private Map<String,String> cs_uri_query;
+    private String sc_status;
+    private String sc_bytes;
+    private String cs_version;
+    private String cs_user_agent;
+    private String cs_cookie;
+    private String cs_referer;
+    private String dcs_id;
 
-    private HashMap<String, String> uriQuery;
-
-    public HashMap<String, String> getUriQuery() {
-        return uriQuery;
+    public String getDate_time() {
+        return date_time;
     }
 
-    public void setUriQuery(HashMap<String, String> uriQuery) {
-        this.uriQuery = uriQuery;
+    public void setDate_time(String date_time) {
+        this.date_time = date_time;
     }
 
-    public String getDate() {
-        return date;
+    public String getC_ip() {
+        return c_ip;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setC_ip(String c_ip) {
+        this.c_ip = c_ip;
     }
 
-    public String getTime() {
-        return time;
+    public String getCs_username() {
+        return cs_username;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public void setCs_username(String cs_username) {
+        this.cs_username = cs_username;
     }
 
-    public String getcIp() {
-        return cIp;
+    public String getCs_host() {
+        return cs_host;
     }
 
-    public void setcIp(String cIp) {
-        this.cIp = cIp;
+    public void setCs_host(String cs_host) {
+        this.cs_host = cs_host;
     }
 
-    public String getsIp() {
-        return sIp;
+    public String getCs_method() {
+        return cs_method;
     }
 
-    public void setsIp(String sIp) {
-        this.sIp = sIp;
+    public void setCs_method(String cs_method) {
+        this.cs_method = cs_method;
     }
 
-    public String getCsUriStem() {
-        return csUriStem;
+    public String getCs_uri_stem() {
+        return cs_uri_stem;
     }
 
-    public void setCsUriStem(String csUriStem) {
-        this.csUriStem = csUriStem;
+    public void setCs_uri_stem(String cs_uri_stem) {
+        this.cs_uri_stem = cs_uri_stem;
     }
 
-    public String getCsUserAgent() {
-        return csUserAgent;
+    public Map<String, String> getCs_uri_query() {
+        return cs_uri_query;
     }
 
-    public void setCsUserAgent(String csUserAgent) {
-        this.csUserAgent = csUserAgent;
+    public void setCs_uri_query(Map<String, String> cs_uri_query) {
+        this.cs_uri_query = cs_uri_query;
     }
 
-    @Override
-    public String toString() {
-        String column = new SplitValueBuilder()
-                .add(uriQuery.get(SDCLogConstants.LOG_QUERY_NAME_DEVICEID))
-                .add(time)
-                .add(date)
-                .add(cIp)
-                .add(csUserAgent)
-                .add(uriQuery.get(SDCLogConstants.LOG_QUERY_NAME_UTMSOURCE))
-                .add(uriQuery.get(SDCLogConstants.LOG_QUERY_NAME_WTUTYPE))
-                .add(uriQuery.get(SDCLogConstants.LOG_QUERY_NAME_WTAVV))
-                .add(uriQuery.get(SDCLogConstants.LOG_QUERY_NAME_WTPOS)).build();
-        String event = new SplitValueBuilder()
-                .add(uriQuery.get(SDCLogConstants.LOG_EVENT_NAME_WTLOGIN))
-                .add(uriQuery.get(SDCLogConstants.LOG_EVENT_NAME_WTMENU))
-                .add(uriQuery.get(SDCLogConstants.LOG_EVENT_NAME_WTCART))
-                .add(uriQuery.get(SDCLogConstants.LOG_EVENT_NAME_WTUSER))
-                .add(uriQuery.get(SDCLogConstants.LOG_EVENT_NAME_WTSUC))
-                .add(uriQuery.get(SDCLogConstants.LOG_EVENT_NAME_WTPAY)).build();
-        return column + "|" + event.replace("null", "").replace("|", "");
+    public String getSc_status() {
+        return sc_status;
+    }
+
+    public void setSc_status(String sc_status) {
+        this.sc_status = sc_status;
+    }
+
+    public String getSc_bytes() {
+        return sc_bytes;
+    }
+
+    public void setSc_bytes(String sc_bytes) {
+        this.sc_bytes = sc_bytes;
+    }
+
+    public String getCs_version() {
+        return cs_version;
+    }
+
+    public void setCs_version(String cs_version) {
+        this.cs_version = cs_version;
+    }
+
+    public String getCs_user_agent() {
+        return cs_user_agent;
+    }
+
+    public void setCs_user_agent(String cs_user_agent) {
+        this.cs_user_agent = cs_user_agent;
+    }
+
+    public String getCs_cookie() {
+        return cs_cookie;
+    }
+
+    public void setCs_cookie(String cs_cookie) {
+        this.cs_cookie = cs_cookie;
+    }
+
+    public String getCs_referer() {
+        return cs_referer;
+    }
+
+    public void setCs_referer(String cs_referer) {
+        this.cs_referer = cs_referer;
+    }
+
+    public String getDcs_id() {
+        return dcs_id;
+    }
+
+    public void setDcs_id(String dcs_id) {
+        this.dcs_id = dcs_id;
     }
 }

@@ -5,6 +5,14 @@ package com.udbac.hadoop.common;
  */
 public class SDCLogConstants {
     /**
+     * 默认分隔符
+     */
+    public static final String LOG_SEPARTIOR = " ";
+    /**
+     * 默认分隔符
+     */
+    public static final String QUERY_SEPARTIOR = "&";
+    /**
      * 默认值
      */
     public static final String DEFAULT_VALUE = "unknown";
@@ -21,25 +29,17 @@ public class SDCLogConstants {
      */
     public static final String RUNNING_DATE_PARAMES = "RUNNING_DATE";
     /**
-     * 日志分隔符
+     * 动作发生的日期时间
      */
-    public static final String LOG_SEPARTIOR = " ";
-    /**
-     * 动作发生的日期
-     */
-    public static final String LOG_COLUMN_NAME_Date = "date";
-    /**
-     * 动作发生的时间（UTC标准时间）
-     */
-    public static final String LOG_COLUMN_NAME_Time = "time";
+    public static final String LOG_COLUMN_NAME_Date_Time = "date_time";
     /**
      * App客户端IP地址
      */
-    public static final String LOG_COLUMN_NAME_Cip = "c-ip";
+    public static final String LOG_COLUMN_NAME_CIP = "c-ip";
     /**
      * App服务器地址，原生App数据采集数据中此项为空。
      */
-    public static final String LOG_COLUMN_NAME_Sip = "s-ip";
+    public static final String LOG_COLUMN_NAME_HOST = "s-ip";
     /**
      *请求中使用的http方法，get/post
      */
@@ -99,10 +99,9 @@ public class SDCLogConstants {
      */
     public static final String LOG_QUERY_NAME_WTEVENT="wt.event";
     /**
-     * wt.event
+     * wt.msg
      */
     public static final String LOG_QUERY_NAME_WTMSG="wt.msg";
-
     /**
      * 登录标识
      */
@@ -144,5 +143,6 @@ public class SDCLogConstants {
      * 浏览器版本
      */
     public static final String LOG_COLUMN_NAME_BROWSER_VERSION = "browser_v";
+    public static final String LOG_COLUMN_NAME_DCSID = "dcsid";
 
     }
