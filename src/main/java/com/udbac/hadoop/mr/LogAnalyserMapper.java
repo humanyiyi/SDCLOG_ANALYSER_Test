@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.CRC32;
 
@@ -60,10 +61,11 @@ public class LogAnalyserMapper extends Mapper<LongWritable, Text, NullWritable, 
     }
 
     private Map<String, String> handleLog(Text value) {
-        Map<String, String> logMap = null;
+        Map<String, String> logMap = new HashMap<>();
         String[] tokens = StringUtils.split(value.toString(), SDCLogConstants.LOG_SEPARTIOR);
         if (tokens.length == 15) {
-            logMap.put(SDCLogConstants.LOG_COLUMN_NAME_Date_Time, TimeUtil.handleTime(tokens[0] + tokens[1]));
+            String date_time = TimeUtil.handleTime(tokens[0] + " " + tokens[1]);
+            logMap.put(SDCLogConstants.LOG_COLUMN_NAME_Date_Time, date_time);
             logMap.put(SDCLogConstants.LOG_COLUMN_NAME_CIP, tokens[2]);
             logMap.put(SDCLogConstants.LOG_COLUMN_NAME_HOST, tokens[4]);
             String[] uriQuerys = StringUtils.split(tokens[7], SDCLogConstants.QUERY_SEPARTIOR);

@@ -5,6 +5,7 @@ import com.udbac.hadoop.util.TimeUtil;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -65,8 +66,10 @@ public class LogAnalyserRunner implements Tool {
 
         job1.setMapOutputKeyClass(NullWritable.class);
         job1.setMapOutputValueClass(Put.class);
-        job1.setNumReduceTasks(1);
+//        TableMapReduceUtil.initTableReducerJob("YUM_TEST", null, job);
+        TableMapReduceUtil.initTableReducerJob("YUM_TEST", null, job1, null, null, null, null, false);
 
+        job1.setNumReduceTasks(1);
 
         return job1.waitForCompletion(true) ? 0 : -1;
     }
