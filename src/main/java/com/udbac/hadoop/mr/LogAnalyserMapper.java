@@ -1,11 +1,7 @@
 package com.udbac.hadoop.mr;
 
 import com.udbac.hadoop.common.SDCLogConstants;
-import com.udbac.hadoop.util.TimeUtil;
-import eu.bitwalker.useragentutils.UserAgent;
 import org.apache.commons.lang.StringUtils;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
@@ -13,9 +9,6 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.CRC32;
 
@@ -24,7 +17,7 @@ import java.util.zip.CRC32;
  * 读入数据源的mapper
  */
 
-public class LogAnalyserMapper extends Mapper<LongWritable, Text, NullWritable, Put> {
+public class LogAnalyserMapper extends Mapper<LongWritable, Text, NullWritable, Text> {
     private final static Logger logger = Logger.getLogger(LogAnalyserMapper.class);
     private int inputRecords, filterRecords, outputRecords;
     private CRC32 crc32 = new CRC32();
@@ -45,69 +38,36 @@ public class LogAnalyserMapper extends Mapper<LongWritable, Text, NullWritable, 
     protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
         inputRecords++;
         try {
-            if (value.getLength() == 0) return;
+            String[] logtokens = StringUtils.split(value.toString(), SDCLogConstants.LOG_SEPARTIOR);
+            if (logtokens.length != 15) {
+                filterRecords++;
+                return;
+            }
             //处理日志方法
-            Map<String, String> logMap = handleLog(value);
+            Map<String, String> logMap = LogParserUtil.handleLog(logtokens);
             if (logMap.isEmpty()) {
                 filterRecords++;
                 return;
             }
-            insertHbase(logMap,context);
+            context.write(NullWritable.get(), new Text(logMap.toString()));
         } catch (Exception e) {
-            filterRecords ++;
-            logger.error("处理SDCLOG出现异常，数据:"+value+"\n"+ e);
+            filterRecords++;
+            logger.error("处理SDCLOG出现异常，数据:" + value + "\n");
             e.printStackTrace();
         }
     }
 
-    private Map<String, String> handleLog(Text value) {
-        Map<String, String> logMap = new HashMap<>();
-        String[] tokens = StringUtils.split(value.toString(), SDCLogConstants.LOG_SEPARTIOR);
-        if (tokens.length == 15) {
-            String date_time = TimeUtil.handleTime(tokens[0] + " " + tokens[1]);
-            logMap.put(SDCLogConstants.LOG_COLUMN_NAME_Date_Time, date_time);
-            logMap.put(SDCLogConstants.LOG_COLUMN_NAME_CIP, tokens[2]);
-            logMap.put(SDCLogConstants.LOG_COLUMN_NAME_HOST, tokens[4]);
-            String[] uriQuerys = StringUtils.split(tokens[7], SDCLogConstants.QUERY_SEPARTIOR);
-            for (String uriQuery : uriQuerys) {
-                String[] uriitems = StringUtils.split(uriQuery, "=");
-                try {
-                    uriitems[1] = URLDecoder.decode(uriitems[1], "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    logger.error("url解析异常"+e);
-                    e.printStackTrace();
-                }
-                logMap.put(uriitems[0], uriitems[1]);
-            }
-            handleUA(logMap, tokens[11]);
-            logMap.put(SDCLogConstants.LOG_COLUMN_NAME_DCSID, tokens[14]);
-            return logMap;
-        } else {
-            return null;
-        }
-    }
 
-    private Map<String, String> handleUA(Map<String, String> logMap, String ua) {
-        if (StringUtils.isNotBlank(ua)) {
-            UserAgent userAgent = UserAgent.parseUserAgentString(ua);
-            logMap.put(SDCLogConstants.LOG_COLUMN_NAME_OS_NAME, userAgent.getOperatingSystem().toString());
-            logMap.put(SDCLogConstants.LOG_COLUMN_NAME_BROWSER_NAME, userAgent.getBrowser().toString());
-            logMap.put(SDCLogConstants.LOG_COLUMN_NAME_BROWSER_VERSION, userAgent.getBrowserVersion().toString());
-        }
-        return logMap;
-    }
-
-    private void insertHbase(Map<String, String> logMap,Context context) throws IOException, InterruptedException {
+    private void insertHbase(Map<String, String> logMap, Context context) throws IOException, InterruptedException {
         String dcsid = logMap.get(SDCLogConstants.LOG_COLUMN_NAME_DCSID);
         String date_time = logMap.get(SDCLogConstants.LOG_COLUMN_NAME_Date_Time);
         String rowkey = generateRowKey(dcsid, date_time);
-        Put put = new Put(Bytes.toBytes(rowkey));
-        for (Map.Entry<String, String> entry : logMap.entrySet()) {
-            if (StringUtils.isNotBlank(entry.getKey()) && StringUtils.isNotBlank(entry.getValue())) {
-                put.add(Bytes.toBytes("CF1"), Bytes.toBytes(entry.getKey()), Bytes.toBytes(entry.getValue()));
-            }
-        }
-        context.write(NullWritable.get(), put);
+//        for (Map.Entry<String, String> entry : logMap.entrySet()) {
+//            if (StringUtils.isNotBlank(entry.getKey()) && StringUtils.isNotBlank(entry.getValue())) {
+//
+//            }
+//        }
+//        context.write(NullWritable.get(), put);
     }
 
     private String generateRowKey(String dcsid, String date_time) {

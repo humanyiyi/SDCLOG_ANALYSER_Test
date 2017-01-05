@@ -10,8 +10,7 @@ public final class JdbcUtils {
     private static Properties ps = new Properties();
     private static final String db_setting = "/system-config.properties";
 
-    private JdbcUtils() {
-    }
+    private JdbcUtils() {}
 
     // 注册驱动
     static {

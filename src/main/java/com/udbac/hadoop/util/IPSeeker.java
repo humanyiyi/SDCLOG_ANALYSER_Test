@@ -11,9 +11,8 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
-/** */
 /**
- * * 用来读取QQwry.dat文件，以根据ip获得好友位置，QQwry.dat的格式是 一. 文件头，共8字节 1. 第一个起始IP的绝对偏移， 4字节
+ * 用来读取QQwry.dat文件，以根据ip获得好友位置，QQwry.dat的格式是 一. 文件头，共8字节 1. 第一个起始IP的绝对偏移， 4字节
  * 2. 最后一个起始IP的绝对偏移， 4字节 二. "结束地址/国家/区域"记录区 四字节ip地址后跟的每一条记录分成两个部分 1. 国家记录 2.
  * 地区记录 但是地区记录是不一定有的。而且国家记录和地区记录都有两种形式 1. 以0结束的字符串 2. 4个字节，一个字节可能为0x1或0x2 a.
  * 为0x1时，表示在绝对偏移后还跟着一个区域的记录，注意是绝对偏移之后，而不是这四个字节之后 b. 为0x2时，表示在绝对偏移后没有区域记录
@@ -22,9 +21,6 @@ import java.util.List;
  * "起始地址/结束地址偏移"记录区 1. 每条记录7字节，按照起始地址从小到大排列 a. 起始IP地址，4字节 b. 结束ip地址的绝对偏移，3字节
  *
  * 注意，这个文件里的ip地址和所有的偏移量均采用little-endian格式，而java是采用 big-endian格式的，要注意转换
- *
- *
- *
  */
 public class IPSeeker {
     // 一些固定常量，比如记录长度等等
@@ -59,8 +55,7 @@ public class IPSeeker {
         b3 = new byte[3];
         String ipFilePath = null;
         try {
-            ipFilePath = IPSeeker.class.getResource("/qqwry.dat").getPath();
-            System.out.println(ipFilePath);
+            ipFilePath = IPSeeker.class.getResource("/qqwry.dat").getFile();
             ipFile = new RandomAccessFile(ipFilePath, "r");
         } catch (FileNotFoundException e) {
             System.out.println(ipFilePath + "IP地址信息文件没有找到，IP显示功能将无法使用");

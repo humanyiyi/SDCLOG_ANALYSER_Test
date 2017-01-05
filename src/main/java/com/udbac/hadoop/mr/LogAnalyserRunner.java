@@ -43,6 +43,7 @@ public class LogAnalyserRunner implements Tool {
     public void setConf(Configuration configuration) {
 //        configuration.set("fs.defaultFS", "hdfs://hadoo-01:8020");
 //        configuration.set("yarn.resourcemanager.hostname","192.168.4.3");
+        conf.set("hbase.zookeeper.quorum", "node11,node12,node13");
     }
 
     @Override
@@ -65,9 +66,7 @@ public class LogAnalyserRunner implements Tool {
         job1.setMapperClass(LogAnalyserMapper.class);
 
         job1.setMapOutputKeyClass(NullWritable.class);
-        job1.setMapOutputValueClass(Put.class);
-//        TableMapReduceUtil.initTableReducerJob("YUM_TEST", null, job);
-        TableMapReduceUtil.initTableReducerJob("YUM_TEST", null, job1, null, null, null, null, false);
+        job1.setMapOutputValueClass(Text.class);
 
         job1.setNumReduceTasks(1);
 
