@@ -2,6 +2,8 @@ package com.udbac.hadoop.mr;
 
 import com.udbac.hadoop.common.SDCLogConstants;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
@@ -17,11 +19,11 @@ import java.util.zip.CRC32;
  * 读入数据源的mapper
  */
 
-public class LogAnalyserMapper extends Mapper<LongWritable, Text, NullWritable, Text> {
+public class LogAnalyserMapper extends Mapper<LongWritable, Text, NullWritable, Put> {
     private final static Logger logger = Logger.getLogger(LogAnalyserMapper.class);
     private int inputRecords, filterRecords, outputRecords;
     private CRC32 crc32 = new CRC32();
-
+    private byte[] family = Bytes.toBytes("cf1");
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
@@ -49,7 +51,7 @@ public class LogAnalyserMapper extends Mapper<LongWritable, Text, NullWritable, 
                 filterRecords++;
                 return;
             }
-            context.write(NullWritable.get(), new Text(logMap.toString()));
+            insertHbase(logMap,context);
         } catch (Exception e) {
             filterRecords++;
             logger.error("处理SDCLOG出现异常，数据:" + value + "\n");
@@ -62,12 +64,13 @@ public class LogAnalyserMapper extends Mapper<LongWritable, Text, NullWritable, 
         String dcsid = logMap.get(SDCLogConstants.LOG_COLUMN_NAME_DCSID);
         String date_time = logMap.get(SDCLogConstants.LOG_COLUMN_NAME_Date_Time);
         String rowkey = generateRowKey(dcsid, date_time);
-//        for (Map.Entry<String, String> entry : logMap.entrySet()) {
-//            if (StringUtils.isNotBlank(entry.getKey()) && StringUtils.isNotBlank(entry.getValue())) {
-//
-//            }
-//        }
-//        context.write(NullWritable.get(), put);
+        Put put = new Put(Bytes.toBytes(rowkey));
+        for (Map.Entry<String, String> entry : logMap.entrySet()) {
+            if (StringUtils.isNotBlank(entry.getKey()) && StringUtils.isNotBlank(entry.getValue())) {
+                put.add(family, Bytes.toBytes(entry.getKey()), Bytes.toBytes(entry.getValue()));
+            }
+        }
+        context.write(NullWritable.get(), put);
     }
 
     private String generateRowKey(String dcsid, String date_time) {
