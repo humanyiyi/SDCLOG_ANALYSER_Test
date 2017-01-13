@@ -1,13 +1,10 @@
 package com.udbac.hadoop.mr;
 
-import com.udbac.hadoop.common.*;
-import com.udbac.hadoop.util.TimeUtil;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 import org.apache.hadoop.io.NullWritable;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
@@ -15,8 +12,6 @@ import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
-
-import java.net.URI;
 
 /**
  * Created by chaoslane@126.com on 2016/7/25.
@@ -41,9 +36,9 @@ public class LogAnalyserRunner implements Tool {
 
     @Override
     public void setConf(Configuration configuration) {
-//        configuration.set("fs.defaultFS", "hdfs://hadoo-01:8020");
+        configuration.set("fs.defaultFS", "local");
 //        configuration.set("yarn.resourcemanager.hostname","192.168.4.3");
-        conf.set("hbase.zookeeper.quorum", "hadoop-01,hadoop-02,hadoop-03");
+//        conf.set();
     }
 
     @Override
@@ -58,7 +53,7 @@ public class LogAnalyserRunner implements Tool {
         String inputPath = inputArgs[0];
         String outputPath = inputArgs[1];
 
-        Job job1 = Job.getInstance(conf, "WideTableMR");
+        Job job1 = Job.getInstance(conf, "LogAnalyser");
         TextInputFormat.addInputPath(job1, new Path(inputPath));
         TextOutputFormat.setOutputPath(job1, new Path(outputPath));
 
@@ -66,8 +61,7 @@ public class LogAnalyserRunner implements Tool {
         job1.setMapperClass(LogAnalyserMapper.class);
 
         job1.setMapOutputKeyClass(NullWritable.class);
-        job1.setMapOutputValueClass(Put.class);
-        TableMapReduceUtil.initTableReducerJob("sh_cmcc",null, job1, null, null, null, null, false);
+
         job1.setNumReduceTasks(1);
 
         return job1.waitForCompletion(true) ? 0 : -1;
