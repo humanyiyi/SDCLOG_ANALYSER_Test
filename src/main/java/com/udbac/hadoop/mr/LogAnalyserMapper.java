@@ -1,7 +1,6 @@
 package com.udbac.hadoop.mr;
 
 import com.udbac.hadoop.common.SDCLogConstants;
-import com.udbac.hadoop.util.QueryProperties;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
@@ -21,24 +20,27 @@ import java.util.Map;
 public class LogAnalyserMapper extends Mapper<LongWritable, Text, NullWritable, Text> {
     private final static Logger logger = Logger.getLogger(LogAnalyserMapper.class);
     private Map<NullWritable,Text> mapoutput = new HashMap<>();
-    private String inputPath = null;
-    private  int filterRecords,inputRecords;
+    private String fields = null;
 
     protected void setup(Context context){
         Configuration configuration = context.getConfiguration();
-        inputPath = configuration.get("inputPath_directory_name");
+        fields = configuration.get("com.udbac.hadoop.util.query");
         mapoutput.clear();
     }
 
     protected void map(LongWritable key, Text value, Context context){
         try {
             String[] logTokens = StringUtils.split(value.toString(), SDCLogConstants.LOG_SEPARTIOR);
+            if (!StringUtils.isNotBlank(fields)) {
+                throw new RuntimeException("fields is null");
+            }
             if (logTokens.length == 15){
-                SplitValueBuilder sdcLog = LogParserUtil.handleLog(logTokens, QueryProperties.query());
+                SplitValueBuilder sdcLog = LogParserUtil.handleLog(logTokens, fields.split(","));
+//                SplitValueBuilder sdcLog = LogParserUtil.handleLog(logTokens);
+//                Map<String, String> sdcLog = LogParserUtil.handleLogMap(logTokens);
                 context.write(NullWritable.get(), new Text(sdcLog.toString()));
             }
         }catch(Exception e) {
-            filterRecords++;
             logger.error("处理SDCLOG出现的异常，数据：" + value + "\n");
             e.printStackTrace();
         }

@@ -17,19 +17,9 @@
  */
 package org.apache.hadoop.io.nativeio;
 
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.lang.reflect.Field;
-import java.nio.ByteBuffer;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
+import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
@@ -37,15 +27,20 @@ import org.apache.hadoop.fs.CommonConfigurationKeys;
 import org.apache.hadoop.fs.HardLink;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.io.SecureIOUtils.AlreadyExistsException;
+import org.apache.hadoop.io.nativeio.Errno;
+import org.apache.hadoop.io.nativeio.NativeIOException;
 import org.apache.hadoop.util.NativeCodeLoader;
-import org.apache.hadoop.util.Shell;
 import org.apache.hadoop.util.PerformanceAdvisory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import org.apache.hadoop.util.Shell;
 import sun.misc.Unsafe;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.io.*;
+import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * JNI wrappers for various native IO-related calls not available in Java.
@@ -100,7 +95,7 @@ public class NativeIO {
        write.  */
     public static final int SYNC_FILE_RANGE_WAIT_AFTER = 4;
 
-    private static final Log LOG = LogFactory.getLog(NativeIO.class);
+    private static final Log LOG = LogFactory.getLog(org.apache.hadoop.io.nativeio.NativeIO.class);
 
     private static boolean nativeLoaded = false;
     private static boolean fadvisePossible = true;
@@ -133,11 +128,11 @@ public class NativeIO {
       }
 
       public long getMemlockLimit() {
-        return NativeIO.getMemlockLimit();
+        return org.apache.hadoop.io.nativeio.NativeIO.getMemlockLimit();
       }
 
       public long getOperatingSystemPageSize() {
-        return NativeIO.getOperatingSystemPageSize();
+        return org.apache.hadoop.io.nativeio.NativeIO.getOperatingSystemPageSize();
       }
 
       public void posixFadviseIfPossible(String identifier,
@@ -148,7 +143,7 @@ public class NativeIO {
       }
 
       public boolean verifyCanMlock() {
-        return NativeIO.isAvailable();
+        return org.apache.hadoop.io.nativeio.NativeIO.isAvailable();
       }
     }
 
@@ -638,7 +633,7 @@ public class NativeIO {
     }
   }
 
-  private static final Log LOG = LogFactory.getLog(NativeIO.class);
+  private static final Log LOG = LogFactory.getLog(org.apache.hadoop.io.nativeio.NativeIO.class);
 
   private static boolean nativeLoaded = false;
 

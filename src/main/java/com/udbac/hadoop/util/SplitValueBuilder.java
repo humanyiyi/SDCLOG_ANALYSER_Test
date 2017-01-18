@@ -4,7 +4,7 @@ package com.udbac.hadoop.util;
  * Created by root on 2016/7/13.
  */
 public class SplitValueBuilder {
-    private String split = "|";
+    private String split = "\t";
     private StringBuilder sb = new StringBuilder();
 
     public SplitValueBuilder() {

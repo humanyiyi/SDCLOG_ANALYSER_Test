@@ -1,9 +1,8 @@
 package com.udbac.hadoop.mr;
 
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
@@ -12,6 +11,9 @@ import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
+
+import java.net.URI;
+
 
 /**
  * Created by chaoslane@126.com on 2016/7/25.
@@ -36,22 +38,26 @@ public class LogAnalyserRunner implements Tool {
 
     @Override
     public void setConf(Configuration configuration) {
-        configuration.set("fs.defaultFS", "local");
+        configuration.set("fs.defaultFS", "hdfs://192.168.4.2:8022");
+
 //        configuration.set("yarn.resourcemanager.hostname","192.168.4.3");
 //        conf.set();
     }
 
+
     @Override
     public int run(String[] strings) throws Exception {
         Configuration conf = this.getConf();
-
+        conf.addResource(LogAnalyserRunner.class.getResourceAsStream("/conf.xml"));
         String inputArgs[] = new GenericOptionsParser(conf, strings).getRemainingArgs();
-        if (inputArgs.length != 2) {
+        if (inputArgs.length != 3) {
             System.err.println("\"Usage:<inputPath><outputPath>/n\"");
             System.exit(2);
         }
         String inputPath = inputArgs[0];
         String outputPath = inputArgs[1];
+        String ipPath = inputArgs[2];
+//        String paraPath = inputArgs[3];
 
         Job job1 = Job.getInstance(conf, "LogAnalyser");
         TextInputFormat.addInputPath(job1, new Path(inputPath));
@@ -61,6 +67,9 @@ public class LogAnalyserRunner implements Tool {
         job1.setMapperClass(LogAnalyserMapper.class);
 
         job1.setMapOutputKeyClass(NullWritable.class);
+        job1.addCacheFile(new URI(ipPath + "/udbacIPtransArea.csv"));
+        job1.addCacheFile(new URI(ipPath + "/udbacIPtransSegs.csv"));
+//        job1.addCacheFile(new URI(paraPath));
 
         job1.setNumReduceTasks(1);
 

@@ -1,0 +1,11 @@
+<configuration>
+
+    <property>
+
+        <name>com.udbac.hadoop.util.query</name>
+
+        <value>datetime,WT.mobile,WT.a_nm,cs_method,province,city,ipcode</value>
+
+    </property>
+
+</configuration>
